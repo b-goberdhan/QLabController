@@ -1,0 +1,108 @@
+﻿using QLabOSCInterface.Constants;
+using QLabOSCInterface.Enums;
+using QLabOSCInterface.QLabClasses;
+using Rug.Osc;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace QLabOSCInterface
+{
+    public class QLabOSCClient : OSCClient
+    {
+        /// <summary>
+        /// Default recieve and send osc ports for QLAB
+        /// </summary>
+        public const int QLAB_SEND_PORT = 53000;
+        public const int QLAB_RECV_PORT = 53001;
+
+
+
+        public QLabOSCClient(string ipAddress) : base(ipAddress, QLAB_SEND_PORT, QLAB_RECV_PORT)
+        {
+
+        }
+        #region WORKSPACE METHODS
+        public async Task<QLabResponse<List<WorkSpace>>> GetWorkSpaces()
+        {
+            return await base.Send<QLabResponse<List<WorkSpace>>>(WorkspaceConstants.WORKSPACES);
+        }
+        public async Task<QLabResponse<dynamic>> ConnectToWorkSpace(string guid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.CONNECT;
+            return await base.Send<QLabResponse<dynamic>>(path);
+        }
+        public async Task<QLabResponse<dynamic>> DisconnectFromWorkSpace(string guid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.DISCONNECT;
+            return await Send<QLabResponse<dynamic>>(path);
+        }
+        public async Task GoWorkSpace(string guid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.GO;
+            await base.Send<QLabResponse<dynamic>>(path, timeout:0);
+        }
+        public async Task PauseWorkSpace(string guid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.PAUSE;
+            await base.Send<QLabResponse<dynamic>>(path, timeout:0);
+        }
+        public async Task ResumeWorkSpace(string guid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.RESUME;
+            await base.Send<QLabResponse<dynamic>>(path, timeout:0);
+        }
+        public async Task StopWorkSpace(string guid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.STOP;
+            await base.Send<QLabResponse<dynamic>>(path, timeout:0);
+        }
+        public async Task<QLabResponse<dynamic>> GetWorkspaceCueLists(string guid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.CUE_LISTS;
+            return await base.Send<QLabResponse<dynamic>>(path);
+        }
+        public async Task<QLabResponse<dynamic>> DeleteWorkSpaceCue(string workspaceGuid, string cueGuid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+                string.Format(WorkspaceConstants.DELETE_CUE_ID, cueGuid);
+            return await base.Send<QLabResponse<dynamic>>(path);
+        }
+        public async Task<QLabResponse<string>> CreateWorkSpaceCue(string workspaceGuid, CueType type)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) + WorkspaceConstants.CREATE_CUE;
+            object cueTypeName = Enum.GetName(typeof(CueType), type).ToLower();
+            return await base.Send<QLabResponse<string>>(path, timeout:500, cueTypeName);
+        }
+        #endregion
+        #region CUE METHODS
+        public async Task StartCue(string workspaceGuid, string cueGuid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+                string.Format(CueConstants.CUE_ID, cueGuid) + CueConstants.START;
+            await base.Send<object>(path, timeout:0);
+        }
+        public async Task StopCue(string workspaceGuid, string cueGuid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+                string.Format(CueConstants.CUE_ID, cueGuid) + CueConstants.STOP;
+            await base.Send<object>(path, timeout:0);
+        }
+        public async Task HardStopCue(string workspaceGuid, string cueGuid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+                string.Format(CueConstants.CUE_ID, cueGuid) + CueConstants.HARD_STOP;
+            await base.Send<object>(path, timeout:0);
+        }
+
+        public async Task SetCueLiveText(string workspaceGuid, string textCueGuid, string text)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+               string.Format(CueConstants.CUE_ID, textCueGuid) + CueConstants.LIVE_TEXT;
+            await base.Send<object>(path, timeout:0, text);
+        }
+        #endregion
+    }
+}
