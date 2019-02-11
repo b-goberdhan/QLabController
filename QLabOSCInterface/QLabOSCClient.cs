@@ -24,6 +24,19 @@ namespace QLabOSCInterface
         {
 
         }
+
+        public override void Connect()
+        {
+            base.Connect();
+        }
+        #region APP METHODS
+        public async Task<QLabResponse<dynamic>> SetAlwaysReply(bool reply)
+        {
+            string path = AppConstants.ALWAYS_REPLY;
+            int replyNum = reply ? 1 : 0;
+            return await base.Send<QLabResponse<dynamic>>(path, timeout: 500, replyNum);
+        }
+        #endregion
         #region WORKSPACE METHODS
         public async Task<QLabResponse<List<WorkSpace>>> GetWorkSpaces()
         {
@@ -42,22 +55,22 @@ namespace QLabOSCInterface
         public async Task GoWorkSpace(string guid)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.GO;
-            await base.Send<QLabResponse<dynamic>>(path, timeout:0);
+            await base.Send<QLabResponse<dynamic>>(path, timeout:500);
         }
         public async Task PauseWorkSpace(string guid)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.PAUSE;
-            await base.Send<QLabResponse<dynamic>>(path, timeout:0);
+            await base.Send<QLabResponse<dynamic>>(path, timeout:500);
         }
         public async Task ResumeWorkSpace(string guid)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.RESUME;
-            await base.Send<QLabResponse<dynamic>>(path, timeout:0);
+            await base.Send<QLabResponse<dynamic>>(path, timeout:500);
         }
         public async Task StopWorkSpace(string guid)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.STOP;
-            await base.Send<QLabResponse<dynamic>>(path, timeout:0);
+            await base.Send<QLabResponse<dynamic>>(path, timeout:500);
         }
         public async Task<QLabResponse<dynamic>> GetWorkspaceCueLists(string guid)
         {
@@ -78,30 +91,47 @@ namespace QLabOSCInterface
         }
         #endregion
         #region CUE METHODS
-        public async Task StartCue(string workspaceGuid, string cueGuid)
+        public async Task<QLabResponse> StartCue(string workspaceGuid, string cueGuid)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
                 string.Format(CueConstants.CUE_ID, cueGuid) + CueConstants.START;
-            await base.Send<object>(path, timeout:0);
+            return await base.Send<QLabResponse>(path);
         }
-        public async Task StopCue(string workspaceGuid, string cueGuid)
+        public async Task<QLabResponse> StopCue(string workspaceGuid, string cueGuid)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
                 string.Format(CueConstants.CUE_ID, cueGuid) + CueConstants.STOP;
-            await base.Send<object>(path, timeout:0);
+            return await base.Send<QLabResponse>(path);
         }
-        public async Task HardStopCue(string workspaceGuid, string cueGuid)
+        public async Task<QLabResponse> HardStopCue(string workspaceGuid, string cueGuid)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
                 string.Format(CueConstants.CUE_ID, cueGuid) + CueConstants.HARD_STOP;
-            await base.Send<object>(path, timeout:0);
+            return await base.Send<QLabResponse>(path);
         }
-
-        public async Task SetCueLiveText(string workspaceGuid, string textCueGuid, string text)
+        public async Task<QLabResponse> SetCueDuration(string workspaceGuid, string cueGuid, float duration)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+                string.Format(CueConstants.CUE_ID, cueGuid) + CueConstants.DURATION;
+            return await base.Send<QLabResponse>(path, timeout: 500, duration);
+        }
+        public async Task<QLabResponse> GetCueDuration(string workspaceGuid, string cueGuid)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+                string.Format(CueConstants.CUE_ID, cueGuid) + CueConstants.DURATION;
+            return await base.Send<QLabResponse>(path);
+        }
+        public async Task<QLabResponse> SetCueLiveText(string workspaceGuid, string textCueGuid, string text)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
                string.Format(CueConstants.CUE_ID, textCueGuid) + CueConstants.LIVE_TEXT;
-            await base.Send<object>(path, timeout:0, text);
+            return await base.Send<QLabResponse>(path, timeout:500, text);
+        }
+        public async Task<QLabResponse> SetCueLightCommand(string workspaceGuid, string lightCueGuid, string command)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+                string.Format(CueConstants.CUE_ID, lightCueGuid) + CueConstants.LIGHT_COMMAND;
+            return await base.Send<QLabResponse>(path, timeout:500, command);
         }
         #endregion
     }

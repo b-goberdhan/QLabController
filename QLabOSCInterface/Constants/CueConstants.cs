@@ -11,10 +11,15 @@ namespace QLabOSCInterface.Constants
         public const string START = "start";
         public const string STOP = "stop";
         public const string HARD_STOP = "hardStop";
-
+        public const string DURATION = "duration";
         #region Text
         public const string TEXT = "text";
         public const string LIVE_TEXT = "liveText";
-        #endregion 
+        #endregion
+        #region Light
+        public const string LIGHT_COMMAND = "lightCommandText";
+        public const string LIGHT_REMOVE_COMMAND = "removeLightCommandsMatching";
+        public const string LIGHT_REPLACE_COMMAND = "replaceLightCommand";
+        #endregion
     }
 }

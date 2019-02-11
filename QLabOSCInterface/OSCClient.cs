@@ -61,7 +61,7 @@ namespace QLabOSCInterface
             return JsonConvert.DeserializeObject<T>(packetString);
         }
 
-        public void Connect()
+        public virtual void Connect()
         {
             if(!_isDisposed)
             {
