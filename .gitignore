@@ -243,3 +243,5 @@ NuGetBuild
 WiX.Toolset.DummyFile.txt
 nunit-*.xml
 GitHubVS.sln.DotSettings
+/ArduinoProp/SerialPortTester/SerialPortTester.ino
+/ArduinoProp/SerialPortTester

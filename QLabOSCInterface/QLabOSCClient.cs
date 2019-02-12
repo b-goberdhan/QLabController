@@ -22,7 +22,6 @@ namespace QLabOSCInterface
 
         public QLabOSCClient(string ipAddress) : base(ipAddress, QLAB_SEND_PORT, QLAB_RECV_PORT)
         {
-
         }
 
         public override void Connect()

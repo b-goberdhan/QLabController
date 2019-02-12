@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using QLabOSCInterface.Delegates;
 using Rug.Osc;
 using System;
 using System.Net;
-using System.Timers;
 using System.Threading.Tasks;
 
 namespace QLabOSCInterface
