@@ -56,9 +56,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QLabPropInterface\PropInterface.csproj">
-      <Project>{6dbd5693-3887-4121-9945-5fb390460cb2}</Project>
-      <Name>PropInterface</Name>
+    <ProjectReference Include="..\DeviceInterface\DeviceInterface.csproj">
+      <Project>{e84441ec-5fe4-4aba-9a6e-9f89e1296510}</Project>
+      <Name>DeviceInterface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

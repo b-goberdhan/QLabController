@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using PropInterface.Delegates;
+﻿using DeviceInterface.Delegates;
+using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace QLabPropInterface.Devices
+namespace DeviceInterface.Devices
 {
     /// <summary>
     /// For now this class is not functional, it will be used 
@@ -28,7 +28,7 @@ namespace QLabPropInterface.Devices
             Task.Run(RecvBackgroundAsync);
         }
 
-        public override void Open()
+        public override void Connect()
         {
             
         }

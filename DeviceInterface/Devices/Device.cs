@@ -1,10 +1,7 @@
-﻿using PropInterface.Delegates;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DeviceInterface.Delegates;
 using System.Threading.Tasks;
 
-namespace QLabPropInterface.Devices
+namespace DeviceInterface.Devices
 {
     public abstract class Device<TData>
     {
@@ -12,7 +9,7 @@ namespace QLabPropInterface.Devices
         public abstract event MessageRecievedHandler<TData> Recieved;
         protected abstract Task SendAsync(object message);
         protected abstract Task RecvBackgroundAsync();
-        public abstract void Open();
+        public abstract void Connect();
         public string Name { get; private set; }
         protected Device(string name)
         {

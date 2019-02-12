@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO.Ports;
+﻿using System.IO.Ports;
 using System.Threading.Tasks;
-using PropInterface.Delegates;
 using Newtonsoft.Json;
+using DeviceInterface.Delegates;
 
-namespace QLabPropInterface.Devices
+namespace DeviceInterface.Devices
 {
     public class SerialPortDevice<TData> : Device<TData>
     {
@@ -24,7 +21,7 @@ namespace QLabPropInterface.Devices
             PortNumber = portNumber;
             _serialPort = new SerialPort("COM" + portNumber, baudRate);
         }
-        public override async void Open()
+        public override async void Connect()
         {
             _serialPort.Open();
             _reciever = Task.Run(() => RunBackground());

@@ -1,4 +1,4 @@
-using QLabPropInterface.Devices;
+using DeviceInterface.Devices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace PropClientTester
         {
             var device = new SerialPortDevice<ExampleA>(4, "Arduino1");
             device.Recieved += Device_Recieved;
-            device.Open();
+            device.Connect();
             while(true) { }
         }
 

@@ -7,13 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLabOscClientTester", "QLab
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QLabOSCInterface", "QLabOSCInterface\QLabOSCInterface.csproj", "{707208F6-015E-4037-A661-5CD481161678}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropInterface", "QLabPropInterface\PropInterface.csproj", "{6DBD5693-3887-4121-9945-5FB390460CB2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropClientTester", "PropClientTester\PropClientTester.csproj", "{C8CCE865-52B4-4F24-BAC0-BDBDFFB0FA9D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArduinoPropLibrary", "ArduinoPropLibrary\ArduinoPropLibrary.vcxitems", "{8054759B-E1B1-4DC7-BC89-3F12AC85014A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArduinoPropTester", "ArduinoPropTester\ArduinoPropTester.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeviceInterface", "DeviceInterface\DeviceInterface.csproj", "{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -43,14 +43,6 @@ Global
 		{707208F6-015E-4037-A661-5CD481161678}.Release|Any CPU.Build.0 = Release|Any CPU
 		{707208F6-015E-4037-A661-5CD481161678}.Release|x86.ActiveCfg = Release|Any CPU
 		{707208F6-015E-4037-A661-5CD481161678}.Release|x86.Build.0 = Release|Any CPU
-		{6DBD5693-3887-4121-9945-5FB390460CB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DBD5693-3887-4121-9945-5FB390460CB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DBD5693-3887-4121-9945-5FB390460CB2}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6DBD5693-3887-4121-9945-5FB390460CB2}.Debug|x86.Build.0 = Debug|Any CPU
-		{6DBD5693-3887-4121-9945-5FB390460CB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DBD5693-3887-4121-9945-5FB390460CB2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DBD5693-3887-4121-9945-5FB390460CB2}.Release|x86.ActiveCfg = Release|Any CPU
-		{6DBD5693-3887-4121-9945-5FB390460CB2}.Release|x86.Build.0 = Release|Any CPU
 		{C8CCE865-52B4-4F24-BAC0-BDBDFFB0FA9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C8CCE865-52B4-4F24-BAC0-BDBDFFB0FA9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8CCE865-52B4-4F24-BAC0-BDBDFFB0FA9D}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -65,6 +57,14 @@ Global
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|Any CPU.ActiveCfg = Release|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Debug|x86.Build.0 = Debug|Any CPU
+		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Release|x86.ActiveCfg = Release|Any CPU
+		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

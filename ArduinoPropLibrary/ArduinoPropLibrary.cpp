@@ -21,6 +21,6 @@ bool Prop::send(JsonObject &object)
 }
 JsonObject Prop::createSensorObject(char sensorName[], int value)
 {
-	 JsonObject sensorData = jb.createObject();
+	 JsonObject &sensorData = jb.createObject();
 
 }
