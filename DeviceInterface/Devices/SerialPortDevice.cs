@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using DeviceInterface.Delegates;
-using System.Threading;
+using System;
 
 namespace DeviceInterface.Devices
 {
@@ -14,8 +14,7 @@ namespace DeviceInterface.Devices
         
         private SerialPort _serialPort;
         private Task _reciever;
-        private bool _isDisposed = false;
-        private CancellationTokenSource _cancelReadSource = new CancellationTokenSource();
+        private bool _isDisposed;
 
         public SerialPortDevice(int portNumber, string name, int baudRate = 9600) : base(name)
         {
@@ -26,7 +25,7 @@ namespace DeviceInterface.Devices
         public override async void Connect()
         {
             _serialPort.Open();
-            _reciever = Task.Run(() => RunBackground(), _cancelReadSource.Token);
+            _reciever = Task.Run(() => RunBackground());
             await _reciever;
         }
         protected override async Task RecvBackgroundAsync()
@@ -44,12 +43,14 @@ namespace DeviceInterface.Devices
                     var response = JsonConvert.DeserializeObject<TData>(json);
                     Recieved?.Invoke(this, response);
                 }
-                catch
+                catch(Exception)
                 {
-                    //Do nothing, the message is not valid!
-                }               
+                    continue;
+                }
+                
             }
         }
+
         protected override async Task SendAsync(object message)
         {
             string serilizedMessage = JsonConvert.SerializeObject(message);
@@ -57,21 +58,6 @@ namespace DeviceInterface.Devices
             {
                 _serialPort.WriteLine(serilizedMessage);
             });
-        }
-        public override void Dispose()
-        {
-            if (!_isDisposed)
-            {
-                _isDisposed = true;
-                _cancelReadSource.Cancel();
-                _reciever.Dispose();
-                if (_serialPort.IsOpen)
-                {
-                    _serialPort.Close();
-                }
-                _serialPort.Dispose();
-                
-            }
         }
     }
 }

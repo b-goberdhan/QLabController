@@ -35,6 +35,9 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Rug.Osc, Version=1.2.5.17694, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rug.Osc.1.2.5\lib\Rug.Osc.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Ports, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -59,6 +62,10 @@
     <ProjectReference Include="..\DeviceInterface\DeviceInterface.csproj">
       <Project>{e84441ec-5fe4-4aba-9a6e-9f89e1296510}</Project>
       <Name>DeviceInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QLabOSCInterface\QLabOSCInterface.csproj">
+      <Project>{707208F6-015E-4037-A661-5CD481161678}</Project>
+      <Name>QLabOSCInterface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
