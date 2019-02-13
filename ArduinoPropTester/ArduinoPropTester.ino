@@ -16,7 +16,7 @@ void setup() {
 void loop() {
 
 	char output[1064];
-	delay(1000);
+	delay(100);
 	long distanceCm = getPingRangeCm();
 	buildSensorData(output, sizeof(output), "Ping", distanceCm);
 	Serial.println(output);

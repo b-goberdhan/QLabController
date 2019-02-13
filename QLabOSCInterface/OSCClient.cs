@@ -53,9 +53,18 @@ namespace QLabOSCInterface
             {
                 return default(T);
             }
+
             packetString = packetString.TrimStart(("/reply/" + originalPath + ", ").ToCharArray());
             packetString = packetString.Trim("\"".ToCharArray());
-            return JsonConvert.DeserializeObject<T>(packetString);
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(packetString);
+            }
+            catch
+            {
+                return default(T);
+            }
+            
         }
 
         public virtual void Connect()

@@ -13,7 +13,8 @@ namespace PropClientTester
     class Program
     {
         static QLabOSCClient _client;
-        static WorkSpace _workspace; 
+        static WorkSpace _workspace;
+        static string cueId;
         static void Main(string[] args)
         {
 
@@ -30,30 +31,30 @@ namespace PropClientTester
         {
             var workspaces = await _client.GetWorkSpaces();
             _workspace = workspaces.data[0];
+            
             await _client.ConnectToWorkSpace(_workspace.uniqueID);
+            cueId = (await _client.CreateWorkSpaceCue(_workspace.uniqueID, CueType.Light)).data;
+            await _client.SetCueDuration(_workspace.uniqueID, cueId, 0);
         }
         private static async void Device_Recieved(Device<ExampleA> device, ExampleA response)
         {
             //Now send the light value to QLAB!
+            Console.Clear();
+            Console.WriteLine(response.Name + ": " + response.SensorValue);
+
             await LightIntensityChange(_client, response.SensorValue);
         }
 
         private static async Task LightIntensityChange(QLabOSCClient client, long intensity)
         {
-            
-            Console.WriteLine("Connected to workspace");
-            //Create lighting cue first
-            var cueResponse = await client.CreateWorkSpaceCue(_workspace.uniqueID, CueType.Light);
-
-            var y = await client.SetCueDuration(_workspace.uniqueID, cueResponse.data, .25f);
             Console.WriteLine("Set cue lighting settings");
-
-            string command = "all.intensity = " + intensity;
-            var x = await client.SetCueLightCommand(_workspace.uniqueID, cueResponse.data, command);
-            await client.StartCue(_workspace.uniqueID, cueResponse.data);
+            await client.HardStopCue(_workspace.uniqueID, cueId, 0);
+            string command = "all.intensity = " + intensity* 2.5;
+            await client.SetCueLightCommand(_workspace.uniqueID, cueId, command, 0);
+            await client.StartCue(_workspace.uniqueID, cueId, 0);
             //give some time for the cue to finish
-            await Task.Delay(100);
-            await client.DeleteWorkSpaceCue(_workspace.uniqueID, cueResponse.data);
+            //await Task.Delay(100);
+            //await client.DeleteWorkSpaceCue(_workspace.uniqueID, cueResponse.data);
         }
         class ExampleA
         {
