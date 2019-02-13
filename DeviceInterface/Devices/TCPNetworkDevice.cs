@@ -25,12 +25,11 @@ namespace DeviceInterface.Devices
         {
             _client = client;
             DeviceEndpoint = _client.Client.RemoteEndPoint;
-            Task.Run(RecvBackgroundAsync);
         }
 
-        public override void Connect()
+        public override async void Connect()
         {
-            
+            await Task.Run(RecvBackgroundAsync);
         }
 
         protected override async Task SendAsync(object message)
@@ -62,12 +61,13 @@ namespace DeviceInterface.Devices
                     string message = System.Text.Encoding.Default.GetString(buffer);
 
                 }
+                stream.Dispose();
             });
 
             await _reciever;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if(!_isDisposed)
             {

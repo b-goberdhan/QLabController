@@ -11,20 +11,20 @@ namespace PropClientTester
     {
         static void Main(string[] args)
         {
-            var device = new SerialPortDevice<ExampleA>(4, "Arduino1");
+            var device = new SerialPortDevice<SensorData>(4, "Arduino1");
             device.Recieved += Device_Recieved;
             device.Connect();
             while(true) { }
         }
 
-        private static void Device_Recieved(Device<ExampleA> device, ExampleA response)
+        private static void Device_Recieved(Device<SensorData> device, SensorData response)
         {
-            Console.WriteLine("msg recieved!");
+            Console.WriteLine(response.Name + ": " + response.SensorValue);
         }
     }
-    class ExampleA
+    class SensorData
     {
-        public string hello { get; set; }
-        public int hi { get; set; }
+        public string Name { get; set; }
+        public long SensorValue { get; set; }
     }
 }

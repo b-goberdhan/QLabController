@@ -1,9 +1,10 @@
 ﻿using DeviceInterface.Delegates;
+using System;
 using System.Threading.Tasks;
 
 namespace DeviceInterface.Devices
 {
-    public abstract class Device<TData>
+    public abstract class Device<TData> : IDisposable
     {
 
         public abstract event MessageRecievedHandler<TData> Recieved;
@@ -22,6 +23,7 @@ namespace DeviceInterface.Devices
             Task.WaitAll(task);
         }
 
-        
+        public abstract void Dispose();
+     
     }
 }

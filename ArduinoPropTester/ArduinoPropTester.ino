@@ -1,8 +1,9 @@
 #include <ArduinoJson.h>
 
-const int capacity = JSON_OBJECT_SIZE(3);
+const int capacity = JSON_OBJECT_SIZE(10);
 StaticJsonBuffer<capacity> jb;
 
+const int pingPin = 12;
 
 void setup() {
 	// put your setup code here, to run once:
@@ -13,15 +14,32 @@ void setup() {
 }
 
 void loop() {
-	// put your main code here, to run repeatedly:
-	JsonObject& obj = jb.createObject();
-	obj["hello"] = "world";
-	obj["hi"] = 1;
-	char output[124];
-	delay(1000);
-	//obj.prettyPrintTo(Serial);
-	obj.printTo(output, sizeof(output));
-	Serial.println(output);
-	jb.clear();
 
+	char output[1064];
+	delay(1000);
+	long distanceCm = getPingRangeCm();
+	buildSensorData(output, sizeof(output), "Ping", distanceCm);
+	Serial.println(output);
 }
+
+void buildSensorData(char *dest, int destSize, char sensorName[], long value) {
+	JsonObject& data = jb.createObject();
+	data["Name"] = sensorName;
+	data["SensorValue"] = value;
+	data.printTo(dest, destSize);
+	jb.clear();
+}
+
+long getPingRangeCm() {
+	pinMode(pingPin, OUTPUT);
+	digitalWrite(pingPin, LOW);
+	delayMicroseconds(2);
+	digitalWrite(pingPin, HIGH);
+	delayMicroseconds(5);
+	digitalWrite(pingPin, LOW);
+
+	pinMode(pingPin, INPUT);
+	long duration = pulseIn(pingPin, HIGH);
+	return duration / 29 / 2;
+}
+
