@@ -34,12 +34,11 @@ namespace PropClientTester
         }
         private static async void Device_Recieved(Device<ExampleA> device, ExampleA response)
         {
-            Console.WriteLine(response.hi);
             //Now send the light value to QLAB!
-            await LightIntensityChange(_client, response.hi);
+            await LightIntensityChange(_client, response.SensorValue);
         }
 
-        private static async Task LightIntensityChange(QLabOSCClient client, int intensity)
+        private static async Task LightIntensityChange(QLabOSCClient client, long intensity)
         {
             
             Console.WriteLine("Connected to workspace");
@@ -58,8 +57,8 @@ namespace PropClientTester
         }
         class ExampleA
         {
-            public string hello { get; set; }
-            public int hi { get; set; }
+            public string Name { get; set; }
+            public long SensorValue { get; set; }
         }
     }
 }

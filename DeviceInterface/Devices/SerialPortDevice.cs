@@ -59,5 +59,10 @@ namespace DeviceInterface.Devices
                 _serialPort.WriteLine(serilizedMessage);
             });
         }
+
+        public override void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
