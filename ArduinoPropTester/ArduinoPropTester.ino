@@ -16,7 +16,7 @@ void loop() {
 	// put your main code here, to run repeatedly:
 	JsonObject& obj = jb.createObject();
 	obj["hello"] = "world";
-	obj["hi"] = 1;
+	obj["hi"] = random(1,100);
 	char output[124];
 	delay(1000);
 	//obj.prettyPrintTo(Serial);

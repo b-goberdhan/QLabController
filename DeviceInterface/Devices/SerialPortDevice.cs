@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using DeviceInterface.Delegates;
+using System;
 
 namespace DeviceInterface.Devices
 {
@@ -37,8 +38,16 @@ namespace DeviceInterface.Devices
             while (!_isDisposed)
             {
                 string json = _serialPort.ReadLine();
-                var response = JsonConvert.DeserializeObject<TData>(json);
-                Recieved?.Invoke(this, response);
+                try
+                {
+                    var response = JsonConvert.DeserializeObject<TData>(json);
+                    Recieved?.Invoke(this, response);
+                }
+                catch(Exception)
+                {
+                    continue;
+                }
+                
             }
         }
 
