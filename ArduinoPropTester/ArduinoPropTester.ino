@@ -14,7 +14,6 @@ void setup() {
 }
 
 void loop() {
-
 	char output[1064];
 	delay(100);
 	long distanceCm = getPingRangeCm();

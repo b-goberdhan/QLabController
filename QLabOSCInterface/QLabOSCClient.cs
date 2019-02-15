@@ -44,7 +44,7 @@ namespace QLabOSCInterface
         public async Task<QLabResponse<dynamic>> ConnectToWorkSpace(string guid)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, guid) + WorkspaceConstants.CONNECT;
-            return await base.Send<QLabResponse<dynamic>>(path);
+            return await base.Send<QLabResponse<dynamic>>(path, timeout:1000);
         }
         public async Task<QLabResponse<dynamic>> DisconnectFromWorkSpace(string guid)
         {

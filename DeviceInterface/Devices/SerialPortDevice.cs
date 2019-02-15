@@ -24,12 +24,11 @@ namespace DeviceInterface.Devices
         }
         public override async void Connect()
         {
-            _serialPort.Open();
-            _reciever = Task.Run(() => RunBackground());
-            await _reciever;
+            await RecvBackgroundAsync();
         }
         protected override async Task RecvBackgroundAsync()
         {
+            _serialPort.Open();
             _reciever = Task.Run(() => RunBackground());
             await _reciever;
         }
@@ -43,14 +42,13 @@ namespace DeviceInterface.Devices
                     var response = JsonConvert.DeserializeObject<TData>(json);
                     Recieved?.Invoke(this, response);
                 }
-                catch(Exception)
+                catch
                 {
                     continue;
                 }
                 
             }
         }
-
         protected override async Task SendAsync(object message)
         {
             string serilizedMessage = JsonConvert.SerializeObject(message);
@@ -59,10 +57,15 @@ namespace DeviceInterface.Devices
                 _serialPort.WriteLine(serilizedMessage);
             });
         }
-
         public override void Dispose()
         {
-            throw new NotImplementedException();
+            if (!_isDisposed)
+            {
+                _isDisposed = true;
+                _reciever.Dispose();
+                _serialPort.Close();
+                _serialPort.Dispose();
+            }
         }
     }
 }
