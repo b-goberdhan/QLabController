@@ -1,0 +1,32 @@
+div, span, body, button {
+    font-family: sans-serif;
+}
+
+.LightGray {
+    background: #ededed !important;
+}
+.Gray {
+    background: #cccccc !important;
+}
+.SlightlyDarkGray {
+    background: #bbbbbb !important;
+}
+.DarkGray {
+    background: #aaaaaa !important;
+}
+
+.Blue {
+    background: #257AFD;
+}
+
+.BlueBorder {
+    border-color: #257AFD;
+    border-style: solid;
+}
+
+
+.CenterContents {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
