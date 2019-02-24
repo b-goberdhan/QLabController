@@ -8,7 +8,6 @@ namespace DeviceInterface.Devices
 {
     public class SerialPortDevice<TData> : Device<TData>
     {
-        public override event MessageRecievedHandler<TData> Recieved;
         public int BaudRate { get; private set; }
         public int PortNumber { get; private set; }
         
@@ -39,8 +38,7 @@ namespace DeviceInterface.Devices
                 string json = _serialPort.ReadLine();
                 try
                 {
-                    var response = JsonConvert.DeserializeObject<TData>(json);
-                    Recieved?.Invoke(this, response);
+                    base.NotifyRecieved(json);
                 }
                 catch
                 {

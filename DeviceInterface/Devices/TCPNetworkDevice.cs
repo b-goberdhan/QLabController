@@ -19,7 +19,6 @@ namespace DeviceInterface.Devices
         private readonly TcpClient _client;
         private Task _reciever;
         private bool _isDisposed;
-        public override event MessageRecievedHandler<TData> Recieved;
 
         public TCPNetworkDevice(TcpClient client, string name) : base(name)
         {
@@ -47,7 +46,7 @@ namespace DeviceInterface.Devices
             {
                 NetworkStream stream = _client.GetStream();
                 int i = 0;
-                byte[] buffer = new byte[256];
+                byte[] buffer = new byte[1024];
                 while(!_isDisposed)
                 {
                     if(_client?.Connected != true)
@@ -58,8 +57,8 @@ namespace DeviceInterface.Devices
                     }
                     i = await stream.ReadAsync(buffer, 0, buffer.Length);
                     // need to add logic here if more of the message needs to be read!
-                    string message = System.Text.Encoding.Default.GetString(buffer);
-
+                    string jsonMessage = System.Text.Encoding.Default.GetString(buffer);
+                    NotifyRecieved(jsonMessage);
                 }
                 stream.Dispose();
             });
@@ -71,8 +70,10 @@ namespace DeviceInterface.Devices
         {
             if(!_isDisposed)
             {
+                _isDisposed = true;
+                _reciever.Dispose();
                 _client.Close();
-                _client.Dispose();
+                _client.Dispose();                
             }
         }
     }
