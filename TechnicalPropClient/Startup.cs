@@ -64,7 +64,7 @@ namespace TechnicalPropClient
                 }
             });
 
-            Task.Run(async () => await Electron.WindowManager.CreateWindowAsync());
+            //Task.Run(async () => await Electron.WindowManager.CreateWindowAsync());
         }
     }
 }

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import  {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faSync} from '@fortawesome/free-solid-svg-icons';
-import QLabContainer from '../../containers/QLabContainer.js';
+import {QLabContainer} from '../../containers/QLabContainer.js';
 
 import './QLabLogin.css';
 import './../../index.css';
 
 const LOGGING_IN_PROGRESS = "Connecting to QLab...";
 const LOGGING_ERROR = "Could not connect to QLab please try again."
-
+const QLab = new QLabContainer();
 export class QLabLogin extends Component {
   constructor(props) {
       super(props);
@@ -18,17 +18,19 @@ export class QLabLogin extends Component {
       };
       this.isConnected = false;
       this.ipAddress = '';
+      this.notifyConnectedChange = props.onConnectedChanged;
       this.connectToQLab(this.onSuccess, this.onError);
       
   }
   connectToQLab(onSuccess, onError) {
-      QLabContainer.connect(this.ipAddress, onSuccess.bind(this), onError.bind(this));
+    QLab.connect(this.ipAddress, onSuccess.bind(this), onError.bind(this));
   }
   onSuccess() {
     this.isConnected = true;
     this.setState({
       hasError: false
     });
+    this.notifyConnectedChange(this.isConnected);
   }
   onError() {
     this.isConnected = false;
@@ -36,6 +38,7 @@ export class QLabLogin extends Component {
         hasError: true,
         currentMessage: LOGGING_ERROR
     });
+    this.notifyConnectedChange(this.isConnected);
   }
 
   onConnect() {

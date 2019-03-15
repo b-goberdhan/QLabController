@@ -40,7 +40,7 @@ namespace DeviceInterface.Devices
                 {
                     base.NotifyRecieved(json);
                 }
-                catch
+                catch (Exception e)
                 {
                     continue;
                 }
