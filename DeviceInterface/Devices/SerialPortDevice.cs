@@ -37,8 +37,12 @@ namespace DeviceInterface.Devices
         }
         public override void Connect()
         {
-            _serialPort.Open();
-            base.Connect();
+            if (!IsConnected)
+            {
+                _serialPort.Open();
+                base.Connect();
+            }
+            
         }
         public override void Dispose()
         {

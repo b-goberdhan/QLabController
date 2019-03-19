@@ -15,6 +15,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArduinoPropUltrasonic", "Ar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeviceInterface", "DeviceInterface\DeviceInterface.csproj", "{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{881E6404-971E-4E03-AC4B-1E4E549FF1D3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SimpleBoxProp", "SimpleBoxProp", "{9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoxPropServer", "BoxPropServer\BoxPropServer.csproj", "{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoxPropDevice", "BoxPropDevice\BoxPropDevice.vcxproj", "{01E69668-5C9D-4913-8676-5BE123A38729}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,9 +69,28 @@ Global
 		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Release|x86.ActiveCfg = Release|Any CPU
 		{E84441EC-5FE4-4ABA-9A6E-9F89E1296510}.Release|x86.Build.0 = Release|Any CPU
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}.Debug|x86.Build.0 = Debug|Any CPU
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}.Release|x86.ActiveCfg = Release|Any CPU
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}.Release|x86.Build.0 = Release|Any CPU
+		{01E69668-5C9D-4913-8676-5BE123A38729}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{01E69668-5C9D-4913-8676-5BE123A38729}.Debug|x86.ActiveCfg = Debug|Win32
+		{01E69668-5C9D-4913-8676-5BE123A38729}.Debug|x86.Build.0 = Debug|Win32
+		{01E69668-5C9D-4913-8676-5BE123A38729}.Release|Any CPU.ActiveCfg = Release|Win32
+		{01E69668-5C9D-4913-8676-5BE123A38729}.Release|x86.ActiveCfg = Release|Win32
+		{01E69668-5C9D-4913-8676-5BE123A38729}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7} = {881E6404-971E-4E03-AC4B-1E4E549FF1D3}
+		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41} = {9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7}
+		{01E69668-5C9D-4913-8676-5BE123A38729} = {9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EFFF883C-8AC4-49C1-8080-97516D7F7EB0}
