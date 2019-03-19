@@ -15,55 +15,53 @@ namespace DeviceInterface.Devices
     public class TCPNetworkDevice<TData> : Device<TData>, IDisposable
     {
         public EndPoint DeviceEndpoint { get; private set; }
-       
+        public IPAddress IPAddress { get; private set; }
+        public int Port { get; private set; }
         private readonly TcpClient _client;
         private Task _reciever;
         private bool _isDisposed;
 
-        public TCPNetworkDevice(TcpClient client, string name) : base(name)
+        protected override Func<string> BackgroundReciever
+        {
+            get
+            {
+                return () =>
+                {
+                    NetworkStream stream = _client.GetStream();
+                    int i = 0;
+                    byte[] buffer = new byte[1024];
+                    string json = "";
+                    if (!_isDisposed)
+                    {
+                        if (_client?.Connected != true)
+                        {
+                            stream.Close();
+                            stream.Dispose();
+                        }
+                        else
+                        {
+                            i = stream.Read(buffer, 0, buffer.Length);
+                            // need to add logic here if more of the message needs to be read!
+                            json = System.Text.Encoding.Default.GetString(buffer);
+                        }          
+                    }
+                    stream.Dispose();
+                    return json;
+                };
+            }
+        }
+        public TCPNetworkDevice(TcpClient client, string ipAddress, int portNum, string name) : base(name)
         {
             _client = client;
+            IPAddress = IPAddress.Parse(ipAddress);
+            Port = portNum;
             DeviceEndpoint = _client.Client.RemoteEndPoint;
         }
 
-        public override async void Connect()
+        public override void Connect()
         {
-            await Task.Run(RecvBackgroundAsync);
-        }
-
-        protected override async Task SendAsync(object message)
-        {
-            NetworkStream stream = _client.GetStream();
-            string serilizedMessage = JsonConvert.SerializeObject(message);
-            byte[] date = Convert.FromBase64String(serilizedMessage);
-            await stream.WriteAsync(date, 0, date.Length);
-            stream.Dispose();
-        }
-
-        protected override async Task RecvBackgroundAsync()
-        {
-            _reciever = Task.Run(async() =>
-            {
-                NetworkStream stream = _client.GetStream();
-                int i = 0;
-                byte[] buffer = new byte[1024];
-                while(!_isDisposed)
-                {
-                    if(_client?.Connected != true)
-                    {
-                        stream.Close();
-                        stream.Dispose();
-                        break;
-                    }
-                    i = await stream.ReadAsync(buffer, 0, buffer.Length);
-                    // need to add logic here if more of the message needs to be read!
-                    string jsonMessage = System.Text.Encoding.Default.GetString(buffer);
-                    NotifyRecieved(jsonMessage);
-                }
-                stream.Dispose();
-            });
-
-            await _reciever;
+            _client.Connect(IPAddress, Port);
+            base.Connect();
         }
 
         public override void Dispose()
@@ -73,7 +71,8 @@ namespace DeviceInterface.Devices
                 _isDisposed = true;
                 _reciever.Dispose();
                 _client.Close();
-                _client.Dispose();                
+                _client.Dispose();
+                base.Dispose();
             }
         }
     }

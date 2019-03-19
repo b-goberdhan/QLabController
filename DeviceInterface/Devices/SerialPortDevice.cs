@@ -14,46 +14,31 @@ namespace DeviceInterface.Devices
         private SerialPort _serialPort;
         private Task _reciever;
         private bool _isDisposed;
-
+        protected override Func<string> BackgroundReciever
+        {
+            get
+            {
+                return () =>
+                {
+                    string json = "";
+                    if (!_isDisposed)
+                    {
+                        json = _serialPort.ReadLine();
+                    }
+                    return json;
+                };
+            }
+        }
         public SerialPortDevice(int portNumber, string name, int baudRate = 9600) : base(name)
         {
             BaudRate = baudRate;
             PortNumber = portNumber;
             _serialPort = new SerialPort("COM" + portNumber, baudRate);
         }
-        public override async void Connect()
-        {
-            await RecvBackgroundAsync();
-        }
-        protected override async Task RecvBackgroundAsync()
+        public override void Connect()
         {
             _serialPort.Open();
-            _reciever = Task.Run(() => RunBackground());
-            await _reciever;
-        }
-        private void RunBackground()
-        {
-            while (!_isDisposed)
-            {
-                string json = _serialPort.ReadLine();
-                try
-                {
-                    base.NotifyRecieved(json);
-                }
-                catch (Exception e)
-                {
-                    continue;
-                }
-                
-            }
-        }
-        protected override async Task SendAsync(object message)
-        {
-            string serilizedMessage = JsonConvert.SerializeObject(message);
-            await Task.Run(() => 
-            {
-                _serialPort.WriteLine(serilizedMessage);
-            });
+            base.Connect();
         }
         public override void Dispose()
         {
@@ -63,6 +48,7 @@ namespace DeviceInterface.Devices
                 _reciever.Dispose();
                 _serialPort.Close();
                 _serialPort.Dispose();
+                base.Dispose();
             }
         }
     }

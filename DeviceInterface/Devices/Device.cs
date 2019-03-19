@@ -9,27 +9,64 @@ namespace DeviceInterface.Devices
     {
 
         public event MessageRecievedHandler<TData> Recieved;
-        protected abstract Task SendAsync(object message);
-        protected abstract Task RecvBackgroundAsync();
-        public abstract void Connect();
+        protected abstract Func<string> BackgroundReciever { get; }
+        protected bool IsConnected { get; private set; }
         public string Name { get; private set; }
         protected Device(string name)
         {
             Name = name;
         }
 
-        protected void Send(object message)
+        protected virtual void Send(object message)
         {
-            var task = SendAsync(message);
-            Task.WaitAll(task);
+
         }
-        protected void NotifyRecieved(string jsonString)
+        protected virtual async Task SendAsync(object message)
         {
-            var response = JsonConvert.DeserializeObject<TData>(jsonString);
-            Recieved?.Invoke(this, response);
+            
+        }
+        private void NotifyRecieved(TData data)
+        {
+            Recieved?.Invoke(this, data);
+        }
+        private TData ParseRecieved(string jsonString)
+        {
+            TData response;
+            try
+            {
+                response = JsonConvert.DeserializeObject<TData>(jsonString);
+                return response;
+            }
+            catch
+            {
+                return default(TData);
+            }
         }
 
-        public abstract void Dispose();
-     
+        public virtual void Dispose()
+        {
+            IsConnected = false;
+        }
+        public virtual async void Connect()
+        {
+            IsConnected = true;
+            await Task.Run(() =>
+            {
+                while(IsConnected)
+                {
+                    string json = BackgroundReciever();
+                    TData response = ParseRecieved(json);
+                    if (response != null)
+                    {
+                        NotifyRecieved(response);
+                    }
+                }
+                
+            });
+        }
+        public virtual void Disconnect()
+        {
+            IsConnected = false;
+        }
     }
 }
