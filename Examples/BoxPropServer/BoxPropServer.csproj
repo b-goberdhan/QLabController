@@ -60,11 +60,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DeviceInterface\DeviceInterface.csproj">
+    <ProjectReference Include="..\..\DeviceInterface\DeviceInterface.csproj">
       <Project>{e84441ec-5fe4-4aba-9a6e-9f89e1296510}</Project>
       <Name>DeviceInterface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QLabOSCInterface\QLabOSCInterface.csproj">
+    <ProjectReference Include="..\..\QLabOSCInterface\QLabOSCInterface.csproj">
       <Project>{707208f6-015e-4037-a661-5cd481161678}</Project>
       <Name>QLabOSCInterface</Name>
     </ProjectReference>

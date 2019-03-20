@@ -245,3 +245,4 @@ nunit-*.xml
 GitHubVS.sln.DotSettings
 /ArduinoProp/SerialPortTester/SerialPortTester.ino
 /ArduinoProp/SerialPortTester
+/Examples/BoxPropDevice/sketch_mar20a
