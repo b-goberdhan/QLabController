@@ -50,9 +50,9 @@ namespace DeviceInterface.Devices
                 };
             }
         }
-        public TCPNetworkDevice(TcpClient client, string ipAddress, int portNum, string name) : base(name)
+        public TCPNetworkDevice(string ipAddress, int portNum, string name) : base(name)
         {
-            _client = client;
+            _client = new TcpClient(ipAddress, portNum);
             IPAddress = IPAddress.Parse(ipAddress);
             Port = portNum;
             DeviceEndpoint = _client.Client.RemoteEndPoint;

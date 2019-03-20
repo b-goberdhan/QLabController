@@ -4,40 +4,49 @@ using QLabOSCInterface.QLabClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BoxPropServer
 {
     class Program
     {
-        static QLabOSCClient _client;
+        static QLabOSCClient _qLabClient;
         static WorkSpace _workspace;
-        static string cueId;
+        static string _cueId;
         static bool connectedToQLab = false;
         static void Main(string[] args)
         {
             Console.WriteLine("This is the simple prop theatre device interface");
+            Console.WriteLine("Created by Brandon Goberdhansingh");
+            Console.WriteLine("University of Calgary");
+            Console.WriteLine("----------------------------------------------------");
+            Console.WriteLine();
+            Console.WriteLine();
             Device<SensorData> device = ChooseDeviceInterface();
-            device.Recieved += Device_Recieved;
             device.Connect();
-            Console.WriteLine("Connected!");
             SetupQLab().Wait();
-            while(true)
+            device.Recieved += Device_Recieved;
+            while (true)
             {
 
             }
             
         }
-
-        private static void Device_Recieved(Device<SensorData> device, SensorData response)
+        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+        private static async void Device_Recieved(Device<SensorData> device, SensorData response)
         {
             if (connectedToQLab)
             {
                 PrintSensorData(response);
+                // if a new request comes before the current one is complete
+                // we will just ignore this message (again, the longest this request would
+                // take would be ~100ms).
+                await SendSensorDataToQLab(response);
+                
             }
-
-
         }
 
         private static Device<SensorData> ChooseDeviceInterface()
@@ -56,11 +65,28 @@ namespace BoxPropServer
                             break;
                         case ConsoleKey.D1:
                             return ConfigureSerialDevice();
+                        case ConsoleKey.C:
+                            Environment.Exit(0);
+                            break;
                         default:
                             break;
                     }
                 }
             }
+        }
+        private static Device<SensorData> ConfigureTcpNetworkDevice()
+        {
+            Console.Clear();
+            Console.WriteLine("Scanning network...");
+            Ping ping;
+            while (true)
+            {
+                ping = new Ping();
+                //ping.S
+            }
+            
+
+            return null;
         }
         private static Device<SensorData> ConfigureSerialDevice()
         {
@@ -94,6 +120,7 @@ namespace BoxPropServer
             Console.WriteLine("Value: " + response.SensorValue);
 
         }
+
         private static async Task SetupQLab()
         {
             Console.Clear();
@@ -109,18 +136,19 @@ namespace BoxPropServer
                     client.Connect();
                     break;
                 }
-                catch (Exception e)
+                catch
                 {
                     Console.WriteLine("Could not connect to QLab please enter another Ip Address");
                 }
             }
-            _client = client;
+            _qLabClient = client;
             // Now select a work space.
-            var workspaces = (await _client.GetWorkSpaces()).data;
+            var workspaces = (await _qLabClient.GetWorkSpaces()).data;
             int count = 0;
             foreach (WorkSpace workspace in workspaces)
             {
                 Console.WriteLine("[" + count + "] " + workspace.displayName);
+                count++;
             }
 
             //Now choose a workspace
@@ -134,6 +162,7 @@ namespace BoxPropServer
                     {
                         _workspace = workspaces[number];
                         Console.WriteLine("Connected to Workspace: " + _workspace.displayName);
+                        break;
                     }
                     catch
                     {
@@ -142,12 +171,37 @@ namespace BoxPropServer
                 }
 
             }
-
+            // Finally create a cue that will be used to adjust lighting.
+            _cueId =  (await _qLabClient.CreateWorkSpaceCue(_workspace.uniqueID, QLabOSCInterface.Enums.CueType.Light)).data;
+            await _qLabClient.SetCueDuration(_workspace.uniqueID, _cueId, 0);
+            Console.WriteLine("Cue Id used: " + _cueId);
+            await Task.Delay(1000);
+            connectedToQLab = true;
+        }
+        private static async Task SendSensorDataToQLab(SensorData data)
+        {
+            // Stop the running cue, we need to set a new value then run it
+            await _qLabClient.HardStopCue(_workspace.uniqueID, _cueId, 50);
+            // the max value from the light sensor is ~~1000
+            // we want the value to be in relation to the max value of light in qlab which is 255
+            float lightIntensity = (((float)data.SensorValue / 50) * 100f);
+            if (lightIntensity > 50)
+            {
+                lightIntensity = 50;
+            }
+            else if (lightIntensity < 0)
+            {
+                lightIntensity = 0;
+            }
+            string lightingCommand = "all.intensity = " + lightIntensity;
+            // we will timeout for 100ms since the arduino sends messges every 100ms
+            await _qLabClient.SetCueLightCommand(_workspace.uniqueID, _cueId, lightingCommand, 0);   
+            await _qLabClient.StartCue(_workspace.uniqueID, _cueId, 0);
 
         }
     }
 
-    class SensorData
+    internal class SensorData
     {
         public string Name { get; set; }
         public long SensorValue { get; set; }
