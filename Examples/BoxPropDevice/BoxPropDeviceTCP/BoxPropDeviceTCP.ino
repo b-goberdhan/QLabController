@@ -5,54 +5,58 @@
 const int capacity = JSON_OBJECT_SIZE(10);
 StaticJsonBuffer<capacity> jb;
 
-const int pingPin = 12;
-const int lightPin = A0;
 
 
-char ssid[] = "EngSystems";          //  your network SSID (name) 
-char pass[] = "engsystems3441";   // your network password
+const int SERVER_PORT = 53005;
 
+const int ERROR_NO_SHIELD_CODE = -1;
+const int ERROR_AP_CODE = -2;
+const int SUCCESS_CODE_HAS_SHIELD = 0;
+const int SUCCESS_STARTED_SERVER = 1;
+int statLed = LED_BUILTIN;
 int status = WL_IDLE_STATUS;
-IPAddress server(74,125,115,105);  // Google
+char apSsid[] = "Prop";          //  your network SSID (name) 
 
 // Initialize the client library
-WiFiClient client;
-
+WiFiClient technicalPropClient;
+WifiServer server(SERVER_PORT);
 void setup() {
   Serial.begin(9600);
-  while (!Serial) {
-    ; //wait for serial port to connect!
+  while(!Serial) {
+    //wait for serial port to connect
   }
-  Serial.println("Attempting to connect to WPA network...");
-  Serial.print("SSID: ");
-  Serial.println(ssid);
-
-  status = WiFi.begin(ssid, pass);
-  if ( status != WL_CONNECTED) { 
-    Serial.println("Couldn't get a wifi connection");
-    // don't do anything else:
-    while(true);
-  } 
-  else {
-    Serial.println("Connected to wifi");
-    Serial.println("\nStarting connection...");
-    // if you get a connection, report back via serial:
-    if (client.connect(server, 80)) {
-      Serial.println("connected");
-      // Make a HTTP request:
-      client.println("GET /search?q=arduino HTTP/1.0");
-      client.println();
+  
+  if (Wifi.status() == WL_NO_SHIELD) {
+    Serial.println(SUCCESS_CODE_HAS_SHIELD);
+    // now in failed state you will have to restart arduino.
+    while (true); 
+  }
+  status = Wifi.beginAP(apSsid);
+  if (status != WL_AP_LISTENING) {
+    
+  }
+  delay(10000);
+  server.begin();
+  Serial.println(SUCCESS_CODE_HAS_SHIELD)
+  // now wait for the client to connect...
+  while (true) {
+    if (status != Wifi.status()) {
+    status = Wifi.status();
+    if (status == WL_AP_CONNECTED) {
+      // We only want to accept the technical prop client
+      // since we want to send sensor data to it.
+      technicalPropClient = server.available();
+      break;
     }
+  }
   }
 }
 
 void loop() {
-  //char output[1064];
-  //delay(100);
-  //long distanceCm = getPingRangeCm();
-  //long lightIntensity = analogRead(lightPin);
-  //buildSensorData(output, sizeof(output), "Light", lightIntensity);
-  //Serial.println(output);
+  if (technicalPropClient.connected()) {
+    // for now we focus on only sending data to the client
+    technicalPropClient.println("helloWorld");
+  }
 }
 
 void buildSensorData(char *dest, int destSize, char sensorName[], long value) {
@@ -61,17 +65,4 @@ void buildSensorData(char *dest, int destSize, char sensorName[], long value) {
   data["SensorValue"] = value;
   data.printTo(dest, destSize);
   jb.clear();
-}
-
-long getPingRangeCm() {
-  pinMode(pingPin, OUTPUT);
-  digitalWrite(pingPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(pingPin, HIGH);
-  delayMicroseconds(5);
-  digitalWrite(pingPin, LOW);
-
-  pinMode(pingPin, INPUT);
-  long duration = pulseIn(pingPin, HIGH);
-  return duration / 29 / 2;
 }
