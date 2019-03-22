@@ -13,49 +13,60 @@ const int ERROR_NO_SHIELD_CODE = -1;
 const int ERROR_AP_CODE = -2;
 const int SUCCESS_CODE_HAS_SHIELD = 0;
 const int SUCCESS_STARTED_SERVER = 1;
+const int SUCCESS_CLIENT_CONNECTED = 2;
+
 int statLed = LED_BUILTIN;
 int status = WL_IDLE_STATUS;
 char apSsid[] = "Prop";          //  your network SSID (name) 
+WiFiServer server(SERVER_PORT);
 
-// Initialize the client library
-WiFiClient technicalPropClient;
-WifiServer server(SERVER_PORT);
 void setup() {
   Serial.begin(9600);
   while(!Serial) {
     //wait for serial port to connect
   }
   
-  if (Wifi.status() == WL_NO_SHIELD) {
-    Serial.println(SUCCESS_CODE_HAS_SHIELD);
+  if (WiFi.status() == WL_NO_SHIELD) {
+    sendConfigData(ERROR_NO_SHIELD_CODE);
     // now in failed state you will have to restart arduino.
     while (true); 
   }
-  status = Wifi.beginAP(apSsid);
+  status = WiFi.beginAP(apSsid);
   if (status != WL_AP_LISTENING) {
-    
+    sendConfigData(SUCCESS_CODE_HAS_SHIELD);
+    while (true);
   }
   delay(10000);
   server.begin();
-  Serial.println(SUCCESS_CODE_HAS_SHIELD)
+
+  sendConfigData(SUCCESS_CODE_HAS_SHIELD);
+  delay(1000); //give some time 
+  sendConfigData(WiFi.localIP());
   // now wait for the client to connect...
-  while (true) {
-    if (status != Wifi.status()) {
-    status = Wifi.status();
-    if (status == WL_AP_CONNECTED) {
-      // We only want to accept the technical prop client
-      // since we want to send sensor data to it.
-      technicalPropClient = server.available();
-      break;
-    }
-  }
-  }
+ 
 }
 
 void loop() {
-  if (technicalPropClient.connected()) {
-    // for now we focus on only sending data to the client
-    technicalPropClient.println("helloWorld");
+  // We only want to accept the technical prop client
+  // since we want to send sensor data to it.
+  if (status != WiFi.status()) {
+    status = WiFi.status();
+    if (status == WL_AP_CONNECTED) {
+      sendConfigData(SUCCESS_CLIENT_CONNECTED);
+    }
+  }
+  WiFiClient client = server.available();
+  if (client) {
+    while (client.connected()){
+      //sendConfigData(SUCCESS_CLIENT_CONNECTED);
+      if (true){
+        delay(1000);
+        char output[1064];
+        sendConfigData(SUCCESS_CLIENT_CONNECTED);
+        buildSensorData(output, sizeof(output), "TestSensor", random(100));
+        client.println(output);
+      }
+    }
   }
 }
 
@@ -65,4 +76,16 @@ void buildSensorData(char *dest, int destSize, char sensorName[], long value) {
   data["SensorValue"] = value;
   data.printTo(dest, destSize);
   jb.clear();
+}
+void buildConfigData(char *dest, int destSize, long data) {
+  JsonObject& dataObj = jb.createObject();
+  dataObj["Data"] = data;
+  dataObj.printTo(dest, destSize);
+  jb.clear();
+}
+
+void sendConfigData(int data) {
+  char output[1064];
+  buildConfigData(output, sizeof(output), data);
+  Serial.println(output);
 }

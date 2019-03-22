@@ -3,7 +3,9 @@ using QLabOSCInterface;
 using QLabOSCInterface.QLabClasses;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
@@ -38,6 +40,7 @@ namespace BoxPropServer
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         private static async void Device_Recieved(Device<SensorData> device, SensorData response)
         {
+            
             if (connectedToQLab)
             {
                 PrintSensorData(response);
@@ -53,7 +56,8 @@ namespace BoxPropServer
         {
             Console.WriteLine("Please choose the interface your device will be using for comunication:");
             Console.WriteLine("Press 1 for Serial Port");
-            Console.WriteLine("Press 2 for LAN");
+            Console.WriteLine("Press 2 for Config and Connect WAN AP");
+            Console.WriteLine("Press 3 for Connect WAN AP");
             Console.WriteLine("Press C to exit the program");
             while (true)
             {
@@ -61,8 +65,10 @@ namespace BoxPropServer
                 {
                     switch (Console.ReadKey().Key)
                     {
+                        case ConsoleKey.D3:
+                            return ConnectToTCPDeviceAP();
                         case ConsoleKey.D2:
-                            break;
+                            return ConfigureTcpNetworkDeviceAP();
                         case ConsoleKey.D1:
                             return ConfigureSerialDevice();
                         case ConsoleKey.C:
@@ -74,20 +80,61 @@ namespace BoxPropServer
                 }
             }
         }
-        private static Device<SensorData> ConfigureTcpNetworkDevice()
+
+        private static Device<SensorData> ConnectToTCPDeviceAP()
         {
             Console.Clear();
-            Console.WriteLine("Scanning network...");
-            Ping ping;
-            while (true)
-            {
-                ping = new Ping();
-                //ping.S
-            }
-            
+            Console.WriteLine("Connect to the Prop WiFi then hit enter.");
+            Console.ReadLine();
 
-            return null;
+            return new TCPNetworkDevice<SensorData>("192.168.1.1", 53005, "ArduinoProp");
         }
+
+        private static bool isDoneConfig = false;
+        private static bool isAPSetup = false;
+        private static string deviceIpAddress;
+        private static Device<SensorData> ConfigureTcpNetworkDeviceAP()
+        {
+            //first connect over serial to the device
+            Console.Clear();
+            Console.WriteLine("Setting up prop over usb...");
+            var serialConfig = new SerialPortDevice<ConfigData>(4, "ArduinoConfig");
+            serialConfig.Recieved += SerialConfigDevice_Recieved;
+            serialConfig.Connect();
+            while(!isDoneConfig)
+            {
+                //just keep running...
+            }
+            serialConfig.Recieved -= SerialConfigDevice_Recieved;
+            //serialConfig.Disconnect();
+            //serialConfig.Dispose();
+            // Switch wifi network...
+            Console.WriteLine("Recieved config data from prop, switch to the Prop WiFi Network.");
+            Console.ReadLine();
+            serialConfig.Recieved -= SerialConfigDevice_Recieved;
+            serialConfig.Disconnect();
+            serialConfig.Dispose();
+
+            var tcpDevice = new TCPNetworkDevice<SensorData>(deviceIpAddress, 53005, "ArduinoProp");
+            Console.WriteLine("Now recieving data, you may now disconnect the device");
+            return tcpDevice;
+        }
+        private static void SerialConfigDevice_Recieved(Device<ConfigData> device, ConfigData response)
+        {            
+            if (response.Data == 0)
+            {
+                Console.WriteLine("AP Setup Running...");
+                isAPSetup = true;
+            }
+            else if (isAPSetup && !isDoneConfig)
+            {
+                byte[] bytes = BitConverter.GetBytes(response.Data);
+                deviceIpAddress = new IPAddress(bytes).ToString();
+                Console.WriteLine("Recieved IP Address: " + deviceIpAddress);
+                isDoneConfig = true;               
+            }
+        }
+
         private static Device<SensorData> ConfigureSerialDevice()
         {
             Console.Clear();
@@ -205,5 +252,9 @@ namespace BoxPropServer
     {
         public string Name { get; set; }
         public long SensorValue { get; set; }
+    }
+    internal class ConfigData
+    {
+        public int Data { get; set; }
     }
 }

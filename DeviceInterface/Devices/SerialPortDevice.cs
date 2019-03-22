@@ -23,7 +23,15 @@ namespace DeviceInterface.Devices
                     string json = "";
                     if (!_isDisposed)
                     {
-                        json = _serialPort.ReadLine();
+                        try
+                        {
+                            json = _serialPort.ReadLine();
+                        }
+                        catch
+                        {
+                            //do nothing
+                        }
+                        
                     }
                     return json;
                 };
@@ -44,14 +52,23 @@ namespace DeviceInterface.Devices
             }
             
         }
+        public override void Disconnect()
+        {
+            if (IsConnected)
+            {
+                _serialPort.Close();
+                base.Disconnect();
+            }
+            
+        }
         public override void Dispose()
         {
             if (!_isDisposed)
             {
                 _isDisposed = true;
-                _reciever.Dispose();
-                _serialPort.Close();
-                _serialPort.Dispose();
+                _reciever?.Dispose();
+                _serialPort?.Close();
+                _serialPort?.Dispose();
                 base.Dispose();
             }
         }

@@ -45,7 +45,7 @@ namespace DeviceInterface.Devices
                             json = System.Text.Encoding.Default.GetString(buffer);
                         }          
                     }
-                    stream.Dispose();
+                  
                     return json;
                 };
             }
@@ -60,7 +60,6 @@ namespace DeviceInterface.Devices
 
         public override void Connect()
         {
-            _client.Connect(IPAddress, Port);
             base.Connect();
         }
 
