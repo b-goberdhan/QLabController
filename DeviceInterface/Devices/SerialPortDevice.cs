@@ -61,6 +61,13 @@ namespace DeviceInterface.Devices
             }
             
         }
+        public void Send(string text)
+        {
+            if (IsConnected)
+            {
+                _serialPort.WriteLine(text);
+            }
+        }
         public override void Dispose()
         {
             if (!_isDisposed)

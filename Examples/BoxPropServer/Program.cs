@@ -40,7 +40,6 @@ namespace BoxPropServer
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         private static async void Device_Recieved(Device<SensorData> device, SensorData response)
         {
-            
             if (connectedToQLab)
             {
                 PrintSensorData(response);
@@ -84,10 +83,10 @@ namespace BoxPropServer
         private static Device<SensorData> ConnectToTCPDeviceAP()
         {
             Console.Clear();
-            Console.WriteLine("Connect to the Prop WiFi then hit enter.");
-            Console.ReadLine();
+            Console.WriteLine("Connect enter prop IP Address: ");
+            string ip = Console.ReadLine();
 
-            return new TCPNetworkDevice<SensorData>("192.168.1.1", 53005, "ArduinoProp");
+            return new TCPNetworkDevice<SensorData>(ip, 53005, "ArduinoProp");
         }
 
         private static bool isDoneConfig = false;
@@ -98,9 +97,16 @@ namespace BoxPropServer
             //first connect over serial to the device
             Console.Clear();
             Console.WriteLine("Setting up prop over usb...");
+            Console.WriteLine("Enter the WiFi network SSID: ");
+            string ssid = Console.ReadLine();
+            Console.WriteLine("Enter the Wifi network Password: ");
+            string pwd = Console.ReadLine();
+
             var serialConfig = new SerialPortDevice<ConfigData>(4, "ArduinoConfig");
             serialConfig.Recieved += SerialConfigDevice_Recieved;
             serialConfig.Connect();
+            serialConfig.Send(ssid);
+            serialConfig.Send(pwd);
             while(!isDoneConfig)
             {
                 //just keep running...
@@ -109,7 +115,7 @@ namespace BoxPropServer
             //serialConfig.Disconnect();
             //serialConfig.Dispose();
             // Switch wifi network...
-            Console.WriteLine("Recieved config data from prop, switch to the Prop WiFi Network.");
+            Console.WriteLine("Recieved config data from prop, press enter to continue");
             Console.ReadLine();
             serialConfig.Recieved -= SerialConfigDevice_Recieved;
             serialConfig.Disconnect();
@@ -132,6 +138,10 @@ namespace BoxPropServer
                 deviceIpAddress = new IPAddress(bytes).ToString();
                 Console.WriteLine("Recieved IP Address: " + deviceIpAddress);
                 isDoneConfig = true;               
+            }
+            else if (response.Data == -3)
+            {
+                Console.WriteLine("ERROR");
             }
         }
 
