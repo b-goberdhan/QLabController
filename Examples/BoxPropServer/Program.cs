@@ -1,4 +1,7 @@
-﻿using DeviceInterface.Devices;
+﻿using BoxPropServer.DataModels;
+using BoxPropServer.DataModels.Sensors;
+using BoxPropServer.Extensions;
+using DeviceInterface.Devices;
 using QLabOSCInterface;
 using QLabOSCInterface.QLabClasses;
 using System;
@@ -27,9 +30,9 @@ namespace BoxPropServer
             Console.WriteLine("----------------------------------------------------");
             Console.WriteLine();
             Console.WriteLine();
-            Device<SensorData> device = ChooseDeviceInterface();
+            Device<Sensors> device = ChooseDeviceInterface();
             device.Connect();
-            SetupQLab().Wait();
+            //SetupQLab().Wait();
             device.Recieved += Device_Recieved;
             while (true)
             {
@@ -38,20 +41,22 @@ namespace BoxPropServer
             
         }
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-        private static async void Device_Recieved(Device<SensorData> device, SensorData response)
+        private static async void Device_Recieved(Device<Sensors> device, Sensors sensors)
         {
+            PrintSensorData(sensors);
             if (connectedToQLab)
             {
-                PrintSensorData(response);
+                PrintSensorData(sensors);
                 // if a new request comes before the current one is complete
                 // we will just ignore this message (again, the longest this request would
                 // take would be ~100ms).
-                await SendSensorDataToQLab(response);
-                
+                await _qLabClient.LightSensorEffect(_cueId, _workspace.uniqueID, sensors.LightSensor);
+
+
             }
         }
 
-        private static Device<SensorData> ChooseDeviceInterface()
+        private static Device<Sensors> ChooseDeviceInterface()
         {
             Console.WriteLine("Please choose the interface your device will be using for comunication:");
             Console.WriteLine("Press 1 for Serial Port");
@@ -69,6 +74,7 @@ namespace BoxPropServer
                         case ConsoleKey.D2:
                             return ConfigureTcpNetworkDeviceAP();
                         case ConsoleKey.D1:
+                        case ConsoleKey.NumPad1:
                             return ConfigureSerialDevice();
                         case ConsoleKey.C:
                             Environment.Exit(0);
@@ -80,19 +86,19 @@ namespace BoxPropServer
             }
         }
 
-        private static Device<SensorData> ConnectToTCPDeviceAP()
+        private static Device<Sensors> ConnectToTCPDeviceAP()
         {
             Console.Clear();
             Console.WriteLine("Connect enter prop IP Address: ");
             string ip = Console.ReadLine();
 
-            return new TCPNetworkDevice<SensorData>(ip, 53005, "ArduinoProp");
+            return new TCPNetworkDevice<Sensors>(ip, 53005, "ArduinoProp");
         }
 
         private static bool isDoneConfig = false;
         private static bool isAPSetup = false;
         private static string deviceIpAddress;
-        private static Device<SensorData> ConfigureTcpNetworkDeviceAP()
+        private static Device<Sensors> ConfigureTcpNetworkDeviceAP()
         {
             //first connect over serial to the device
             Console.Clear();
@@ -102,7 +108,7 @@ namespace BoxPropServer
             Console.WriteLine("Enter the Wifi network Password: ");
             string pwd = Console.ReadLine();
 
-            var serialConfig = new SerialPortDevice<ConfigData>(4, "ArduinoConfig");
+            var serialConfig = new SerialPortDevice<Config>(4, "ArduinoConfig");
             serialConfig.Recieved += SerialConfigDevice_Recieved;
             serialConfig.Connect();
             serialConfig.Send(ssid);
@@ -111,21 +117,17 @@ namespace BoxPropServer
             {
                 //just keep running...
             }
-            serialConfig.Recieved -= SerialConfigDevice_Recieved;
-            //serialConfig.Disconnect();
-            //serialConfig.Dispose();
-            // Switch wifi network...
             Console.WriteLine("Recieved config data from prop, press enter to continue");
             Console.ReadLine();
             serialConfig.Recieved -= SerialConfigDevice_Recieved;
             serialConfig.Disconnect();
             serialConfig.Dispose();
 
-            var tcpDevice = new TCPNetworkDevice<SensorData>(deviceIpAddress, 53005, "ArduinoProp");
+            var tcpDevice = new TCPNetworkDevice<Sensors>(deviceIpAddress, 53005, "ArduinoProp");
             Console.WriteLine("Now recieving data, you may now disconnect the device");
             return tcpDevice;
         }
-        private static void SerialConfigDevice_Recieved(Device<ConfigData> device, ConfigData response)
+        private static void SerialConfigDevice_Recieved(Device<Config> device, Config response)
         {            
             if (response.Data == 0)
             {
@@ -145,11 +147,13 @@ namespace BoxPropServer
             }
         }
 
-        private static Device<SensorData> ConfigureSerialDevice()
+        private static Device<Sensors> ConfigureSerialDevice()
         {
             Console.Clear();
             Console.WriteLine("Enter the COM port of the device");
-            Device<SensorData> device;
+            Device<Sensors> device;
+            //First upload code///
+
             while (true)
             {
                 string number = Console.ReadLine();
@@ -158,7 +162,7 @@ namespace BoxPropServer
                 {
                     try
                     {
-                        device = new SerialPortDevice<SensorData>(portNum, "ArduinoBoxProp");
+                        device = new SerialPortDevice<Sensors>(portNum, "ArduinoBoxProp");
                         device.Connect();
                         Console.WriteLine("Connected");
                         return device;
@@ -170,11 +174,14 @@ namespace BoxPropServer
                 }
             }
         }
-        private static void PrintSensorData(SensorData response)
+        private static void PrintSensorData(Sensors sensors)
         {
             Console.Clear();
-            Console.WriteLine("Sensor: " + response.Name);
-            Console.WriteLine("Value: " + response.SensorValue);
+            
+            
+            
+           
+
 
         }
 
@@ -235,13 +242,13 @@ namespace BoxPropServer
             await Task.Delay(1000);
             connectedToQLab = true;
         }
-        private static async Task SendSensorDataToQLab(SensorData data)
+        private static async Task SendSensorDataToQLab(LightSensor data)
         {
             // Stop the running cue, we need to set a new value then run it
             await _qLabClient.HardStopCue(_workspace.uniqueID, _cueId, 50);
             // the max value from the light sensor is ~~1000
             // we want the value to be in relation to the max value of light in qlab which is 255
-            float lightIntensity = (((float)data.SensorValue / 50) * 100f);
+            float lightIntensity = (((float)data.Intensity / 50) * 100f);
             if (lightIntensity > 50)
             {
                 lightIntensity = 50;
@@ -258,13 +265,4 @@ namespace BoxPropServer
         }
     }
 
-    internal class SensorData
-    {
-        public string Name { get; set; }
-        public long SensorValue { get; set; }
-    }
-    internal class ConfigData
-    {
-        public int Data { get; set; }
-    }
 }

@@ -1,6 +1,8 @@
 ﻿using DeviceInterface.Delegates;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DeviceInterface.Devices
@@ -31,12 +33,11 @@ namespace DeviceInterface.Devices
         }
         private TData ParseRecieved(string jsonString)
         {
-            TData response;
             try
             {
-                response = JsonConvert.DeserializeObject<TData>(jsonString);
+                var response = JsonConvert.DeserializeObject<TData>(jsonString);
                 return response;
-            }
+            }           
             catch
             {
                 return default(TData);
@@ -67,6 +68,11 @@ namespace DeviceInterface.Devices
         public virtual void Disconnect()
         {
             IsConnected = false;
+        }
+        internal class BaseSensor
+        {
+            public string Name { get; set; }
+            public object Data { get; set; }
         }
     }
 }
