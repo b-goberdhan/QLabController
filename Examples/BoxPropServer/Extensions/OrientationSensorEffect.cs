@@ -12,15 +12,16 @@ namespace BoxPropServer.Extensions
     {
         public static async Task OrientationSensorEffect(this QLabOSCClient client, string cueId, string workspaceId, OrientationSensor sensor)
         {
+            await client.HardStopCue(workspaceId, cueId, 50);
             //First we need to recall what the layout of lights are we
             // are just going to do a representations of the lights in a 
             // 3 x 3 overhead configuration
 
-            int[,] lights = new int[3, 3]
+            string[,] lights = new string[3, 3]
             {
-                { 1,2,3 },
-                { 4,5,6 },
-                { 7,8,9 }
+                { "1","2","3" },
+                { "4","5","6" },
+                { "7","8","9" }
             };
             float[,] intensities = new float[3, 3]
             {
@@ -35,25 +36,19 @@ namespace BoxPropServer.Extensions
 
             int row = (int)Math.Round(z) + 1;
 
-
-            //now set the light with the corresponding coords with the highest intensity...
-            intensities[col, row] = 100;
-
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    if (row != i && col != j)
-                    {
-                        intensities[i, j] = (float)Math.Sqrt(i * i + j * j);
-                    }
+                    float distance = (float)Math.Sqrt(Math.Pow(row - i, 2) + Math.Pow(col - j, 2));
+                    float intensity = (distance / 3) * 100;
+                    string lightCommand = lights[i, j] + ".intensity = " + intensity;
+                    await client.SetCueLightCommand(workspaceId, cueId, lightCommand, 0);
                 }
             }
 
-            //now realise that z corresponds to the row of the light
-            Console.Clear();
-            Console.WriteLine("Y: " + col);
-            Console.WriteLine("Z: " + row);
+
+            await client.StartCue(workspaceId, cueId, 100);
             
         }
     }
