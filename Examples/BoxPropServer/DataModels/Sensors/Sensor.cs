@@ -11,5 +11,17 @@ namespace BoxPropServer.DataModels.Sensors
     {
         public LightSensor LightSensor { get; set; }
         public OrientationSensor OrientationSensor { get; set; }
+        public override string ToString()
+        {
+            string result = "";
+            result = "LightSensor:\n";
+            result += "\tIntensity = " + LightSensor?.Intensity + "\n";
+
+            result += "OrientationSensor:\n";
+            result += "\tX = " + OrientationSensor?.X + "\n";
+            result += "\tY = " + OrientationSensor?.Y + "\n";
+            result += "\tZ = " + OrientationSensor?.Z + "\n";
+            return result;
+        }
     }
 }

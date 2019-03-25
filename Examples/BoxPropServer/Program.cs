@@ -43,7 +43,8 @@ namespace BoxPropServer
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         private static async void Device_Recieved(Device<Sensors> device, Sensors sensors)
         {
-            PrintSensorData(sensors);
+            //PrintSensorData(sensors);
+            await _qLabClient.OrientationSensorEffect(_cueId, _workspace?.uniqueID, sensors.OrientationSensor);
             if (connectedToQLab)
             {
                 PrintSensorData(sensors);
@@ -51,7 +52,7 @@ namespace BoxPropServer
                 // we will just ignore this message (again, the longest this request would
                 // take would be ~100ms).
                 await _qLabClient.LightSensorEffect(_cueId, _workspace.uniqueID, sensors.LightSensor);
-
+                
 
             }
         }
@@ -177,12 +178,7 @@ namespace BoxPropServer
         private static void PrintSensorData(Sensors sensors)
         {
             Console.Clear();
-            
-            
-            
-           
-
-
+            Console.WriteLine(sensors.ToString());
         }
 
         private static async Task SetupQLab()
