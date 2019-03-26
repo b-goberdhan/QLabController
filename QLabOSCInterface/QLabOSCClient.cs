@@ -88,6 +88,12 @@ namespace QLabOSCInterface
             object cueTypeName = Enum.GetName(typeof(CueType), type).ToLower();
             return await base.Send<QLabResponse<string>>(path, timeout:500, cueTypeName);
         }
+        public async Task<QLabResponse<dynamic>> Move(string workspaceGuid, string cueId, int index, string parentId)
+        {
+            string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
+                string.Format(WorkspaceConstants.MOVE, cueId);
+            return await base.Send<QLabResponse<dynamic>>(path, timeout: 500, index, parentId);
+        }
         #endregion
         #region CUE METHODS
         public async Task<QLabResponse> StartCue(string workspaceGuid, string cueGuid, int timeout = 500)

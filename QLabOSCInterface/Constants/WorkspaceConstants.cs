@@ -17,5 +17,6 @@ namespace QLabOSCInterface.Constants
         public const string CUE_LISTS = "cueLists";
         public const string DELETE_CUE_ID = "delete_id/{0}";
         public const string CREATE_CUE = "new";
+        public const string MOVE = "move/{0}";
     }
 }

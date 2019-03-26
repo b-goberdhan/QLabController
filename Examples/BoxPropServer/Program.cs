@@ -1,4 +1,5 @@
 ﻿using BoxPropServer.DataModels;
+using BoxPropServer.DataModels.QLab;
 using BoxPropServer.DataModels.Sensors;
 using BoxPropServer.Extensions;
 using DeviceInterface.Devices;
@@ -20,8 +21,12 @@ namespace BoxPropServer
     {
         static QLabOSCClient _qLabClient;
         static WorkSpace _workspace;
-        static string _cueId;
+        
         static bool connectedToQLab = false;
+
+        static Group OrientationSensorGroup;
+        static string LightSensorCueId;
+        const bool IS_TESTING_DEVICE = false;
         static void Main(string[] args)
         {
             Console.WriteLine("This is the simple prop theatre device interface");
@@ -32,29 +37,19 @@ namespace BoxPropServer
             Console.WriteLine();
             Device<Sensors> device = ChooseDeviceInterface();
             device.Connect();
-            //SetupQLab().Wait();
+            SetupQLab().Wait();
+            SetupPropEffect().Wait();
             device.Recieved += Device_Recieved;
-            while (true)
-            {
-
-            }
+            while (true) ;
             
         }
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         private static async void Device_Recieved(Device<Sensors> device, Sensors sensors)
         {
-            PrintSensorData(sensors);
-            //await _qLabClient.OrientationSensorEffect(_cueId, _workspace?.uniqueID, sensors.OrientationSensor);
-            //await _qLabClient.GravitySensorEffect(_cueId, _workspace?.uniqueID, sensors.GravitySensor);
-            if (connectedToQLab)
+            if (connectedToQLab || IS_TESTING_DEVICE)
             {
                 PrintSensorData(sensors);
-                // if a new request comes before the current one is complete
-                // we will just ignore this message (again, the longest this request would
-                // take would be ~100ms).
-                await _qLabClient.LightSensorEffect(_cueId, _workspace.uniqueID, sensors.LightSensor);
-                
-
+                await RunPropEffect(sensors);
             }
         }
 
@@ -184,6 +179,7 @@ namespace BoxPropServer
 
         private static async Task SetupQLab()
         {
+            if (IS_TESTING_DEVICE) return;
             Console.Clear();
             Console.WriteLine("Connect to QLab");
             Console.WriteLine("Provide Ip Address");
@@ -232,33 +228,45 @@ namespace BoxPropServer
                 }
 
             }
-            // Finally create a cue that will be used to adjust lighting.
-            _cueId =  (await _qLabClient.CreateWorkSpaceCue(_workspace.uniqueID, QLabOSCInterface.Enums.CueType.Light)).data;
-            await _qLabClient.SetCueDuration(_workspace.uniqueID, _cueId, 0);
-            Console.WriteLine("Cue Id used: " + _cueId);
-            await Task.Delay(1000);
+           
+            
             connectedToQLab = true;
         }
-        private static async Task SendSensorDataToQLab(LightSensor data)
-        {
-            // Stop the running cue, we need to set a new value then run it
-            await _qLabClient.HardStopCue(_workspace.uniqueID, _cueId, 50);
-            // the max value from the light sensor is ~~1000
-            // we want the value to be in relation to the max value of light in qlab which is 255
-            float lightIntensity = (((float)data.Intensity / 50) * 100f);
-            if (lightIntensity > 50)
-            {
-                lightIntensity = 50;
-            }
-            else if (lightIntensity < 0)
-            {
-                lightIntensity = 0;
-            }
-            string lightingCommand = "all.intensity = " + lightIntensity;
-            // we will timeout for 100ms since the arduino sends messges every 100ms
-            await _qLabClient.SetCueLightCommand(_workspace.uniqueID, _cueId, lightingCommand, 0);   
-            await _qLabClient.StartCue(_workspace.uniqueID, _cueId, 0);
 
+        private static async Task SetupPropEffect()
+        {
+            if (IS_TESTING_DEVICE) return;
+            Console.WriteLine("Choose the lighting effect you wish to run:");
+            Console.WriteLine("[0] Light Sensor effect");
+            Console.WriteLine("[1] Orientation Sensor effect");
+            while (true)
+            {
+                int number;
+                if (int.TryParse(Console.ReadLine(), out number))
+                {
+                    if (number == 0)
+                    {
+                        LightSensorCueId = await _qLabClient.SetupLightSensorEffect(_workspace.uniqueID);
+                        break;
+                    }
+                    else if (number == 1)
+                    {
+                        OrientationSensorGroup = await _qLabClient.SetupOrientationSensorEffect(_workspace.uniqueID);
+                        break;
+                    }
+                }
+            }
+        }
+        private static async Task RunPropEffect(Sensors sensors)
+        {
+            if (!string.IsNullOrEmpty(LightSensorCueId))
+            {
+                await _qLabClient.RunLightSensorEffect(LightSensorCueId, _workspace.uniqueID, sensors.LightSensor);
+            }
+            else if (OrientationSensorGroup != null)
+            {
+                await _qLabClient.RunOrientationSensorEffect(_workspace.uniqueID, OrientationSensorGroup, sensors.OrientationSensor);
+            }
         }
     }
 

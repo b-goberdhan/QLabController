@@ -50,7 +50,7 @@ JsonObject& buildGravitySensorData(Adafruit_BNO055 bno) {
 }
 
 void loop() {
-	delay(100);
+	delay(200);
 	char sensorDataOutput[4084];
 	sensors_event_t event;
 	bno.getEvent(&event);

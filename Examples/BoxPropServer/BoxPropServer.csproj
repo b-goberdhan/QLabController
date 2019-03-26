@@ -109,6 +109,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataModels\QLab\Group.cs" />
     <Compile Include="DataModels\Sensors\AccelerationSensor.cs" />
     <Compile Include="DataModels\Sensors\FlexSensor.cs" />
     <Compile Include="DataModels\Sensors\GravitySensor.cs" />
@@ -118,7 +119,7 @@
     <Compile Include="DataModels\Sensors\OrientationSensor.cs" />
     <Compile Include="Extensions\GravitySensorEffect.cs" />
     <Compile Include="Extensions\LightSensorEffect.cs" />
-    <Compile Include="Extensions\OrientationSensorEffect.cs" />
+    <Compile Include="Extensions\OrientationSensor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
