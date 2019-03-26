@@ -43,8 +43,9 @@ namespace BoxPropServer
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         private static async void Device_Recieved(Device<Sensors> device, Sensors sensors)
         {
-            //PrintSensorData(sensors);
-            await _qLabClient.OrientationSensorEffect(_cueId, _workspace?.uniqueID, sensors.OrientationSensor);
+            PrintSensorData(sensors);
+            //await _qLabClient.OrientationSensorEffect(_cueId, _workspace?.uniqueID, sensors.OrientationSensor);
+            //await _qLabClient.GravitySensorEffect(_cueId, _workspace?.uniqueID, sensors.GravitySensor);
             if (connectedToQLab)
             {
                 PrintSensorData(sensors);

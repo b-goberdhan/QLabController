@@ -3,11 +3,12 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <Wire.h>
-const int capacity = JSON_OBJECT_SIZE(10);
+const int capacity = JSON_OBJECT_SIZE(300);
 StaticJsonBuffer<capacity> jb;
 
 const int pingPin = 12;
 const int lightPin = A1;
+const int flexPin = A2;
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
@@ -21,6 +22,7 @@ void setup() {
 		//an error occured where
 	}
 	delay(1000);
+	pinMode(flexPin, INPUT);
 	bno.setExtCrystalUse(true);
 }
 
@@ -38,17 +40,28 @@ JsonObject& buildOrientationSensorData(float x, float y, float z) {
 	return data;
 }
 
+JsonObject& buildGravitySensorData(Adafruit_BNO055 bno) {
+	JsonObject& data = jb.createObject();
+	imu::Vector<3> gravity = bno.getVector(Adafruit_BNO055::VECTOR_GRAVITY);
+	data["X"] = gravity.x();
+	data["Y"] = gravity.y();
+	data["Z"] = gravity.z();
+	return data;
+}
+
 void loop() {
 	delay(100);
 	char sensorDataOutput[4084];
 	sensors_event_t event;
 	bno.getEvent(&event);
 	
+	
 	long lightIntensity = analogRead(lightPin);
-
+	long flexADC = analogRead(flexPin);
 	JsonObject& sensorsData = jb.createObject();
 	sensorsData["LightSensor"] = buildLightSensorData(lightIntensity);
 	sensorsData["OrientationSensor"] = buildOrientationSensorData(event.orientation.x, event.orientation.y, event.orientation.z);
+	sensorsData["GravitySensor"] = buildGravitySensorData(bno);
 	sensorsData.printTo(sensorDataOutput);
 	jb.clear();
 
