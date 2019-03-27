@@ -48,6 +48,11 @@ JsonObject& buildGravitySensorData(Adafruit_BNO055 bno) {
 	data["Z"] = gravity.z();
 	return data;
 }
+JsonObject& buildFlexSensorData(float flexResistence) {
+	JsonObject& data = jb.createObject();
+	data["FlexResistence"] = flexResistence;
+	return data;
+}
 
 void loop() {
 	delay(200);
@@ -62,6 +67,7 @@ void loop() {
 	sensorsData["LightSensor"] = buildLightSensorData(lightIntensity);
 	sensorsData["OrientationSensor"] = buildOrientationSensorData(event.orientation.x, event.orientation.y, event.orientation.z);
 	sensorsData["GravitySensor"] = buildGravitySensorData(bno);
+	sensorsData["FlexSensor"] = buildFlexSensorData(flexADC);
 	sensorsData.printTo(sensorDataOutput);
 	jb.clear();
 

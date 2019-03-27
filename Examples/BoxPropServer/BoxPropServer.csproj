@@ -117,9 +117,9 @@
     <Compile Include="DataModels\Config.cs" />
     <Compile Include="DataModels\Sensors\LightSensor.cs" />
     <Compile Include="DataModels\Sensors\OrientationSensor.cs" />
-    <Compile Include="Extensions\GravitySensorEffect.cs" />
+    <Compile Include="Extensions\FlexSensorEffect.cs" />
     <Compile Include="Extensions\LightSensorEffect.cs" />
-    <Compile Include="Extensions\OrientationSensor.cs" />
+    <Compile Include="Extensions\OrientationSensorEffect.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

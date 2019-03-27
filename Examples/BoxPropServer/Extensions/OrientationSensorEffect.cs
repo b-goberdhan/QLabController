@@ -12,7 +12,7 @@ namespace BoxPropServer.Extensions
 {
     public static partial class QLabExtension
     {
-        public static async Task<Group> SetupOrientationSensorEffect(this QLabOSCClient client, string workspaceId)
+        public static async Task<Group> SetupOrientationSensorGridEffect(this QLabOSCClient client, string workspaceId)
         {
             var response = await client.CreateWorkSpaceCue(workspaceId, CueType.Group);
             
@@ -37,7 +37,7 @@ namespace BoxPropServer.Extensions
             return group;
            
         }
-        public static async Task RunOrientationSensorEffect(this QLabOSCClient client, string workspaceId, Group group, OrientationSensor sensor)
+        public static async Task RunOrientationSensorGridEffect(this QLabOSCClient client, string workspaceId, Group group, OrientationSensor sensor)
         {
             await client.HardStopCue(workspaceId, group.Id, 0);
             //First we need to recall what the layout of lights are we
@@ -76,10 +76,8 @@ namespace BoxPropServer.Extensions
                 }
                 rowOffset += 3;
             }
-
-
-             
-            
         }
+       
     }
+
 }

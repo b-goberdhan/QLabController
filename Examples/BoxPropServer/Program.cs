@@ -26,6 +26,7 @@ namespace BoxPropServer
 
         static Group OrientationSensorGroup;
         static string LightSensorCueId;
+        static string FlexSensorCueId;
         const bool IS_TESTING_DEVICE = false;
         static void Main(string[] args)
         {
@@ -43,7 +44,6 @@ namespace BoxPropServer
             while (true) ;
             
         }
-        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         private static async void Device_Recieved(Device<Sensors> device, Sensors sensors)
         {
             if (connectedToQLab || IS_TESTING_DEVICE)
@@ -239,6 +239,7 @@ namespace BoxPropServer
             Console.WriteLine("Choose the lighting effect you wish to run:");
             Console.WriteLine("[0] Light Sensor effect");
             Console.WriteLine("[1] Orientation Sensor effect");
+            Console.WriteLine("[2] Flex Sensor effect");
             while (true)
             {
                 int number;
@@ -251,7 +252,12 @@ namespace BoxPropServer
                     }
                     else if (number == 1)
                     {
-                        OrientationSensorGroup = await _qLabClient.SetupOrientationSensorEffect(_workspace.uniqueID);
+                        OrientationSensorGroup = await _qLabClient.SetupOrientationSensorGridEffect(_workspace.uniqueID);
+                        break;
+                    }
+                    else if (number == 2)
+                    {
+                        FlexSensorCueId = await _qLabClient.SetupFlexSensorEffect(_workspace.uniqueID);
                         break;
                     }
                 }
@@ -265,7 +271,11 @@ namespace BoxPropServer
             }
             else if (OrientationSensorGroup != null)
             {
-                await _qLabClient.RunOrientationSensorEffect(_workspace.uniqueID, OrientationSensorGroup, sensors.OrientationSensor);
+                await _qLabClient.RunOrientationSensorGridEffect(_workspace.uniqueID, OrientationSensorGroup, sensors.OrientationSensor);
+            }
+            else if (!string.IsNullOrEmpty(FlexSensorCueId))
+            {
+                await _qLabClient.RunFlexSensorEffect(_workspace.uniqueID, FlexSensorCueId, sensors.FlexSensor);
             }
         }
     }
