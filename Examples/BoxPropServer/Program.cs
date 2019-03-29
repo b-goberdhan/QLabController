@@ -1,6 +1,7 @@
 ﻿using BoxPropServer.DataModels;
 using BoxPropServer.DataModels.QLab;
 using BoxPropServer.DataModels.Sensors;
+using BoxPropServer.Enums;
 using BoxPropServer.Extensions;
 using DeviceInterface.Devices;
 using QLabOSCInterface;
@@ -23,25 +24,39 @@ namespace BoxPropServer
         static WorkSpace _workspace;
         
         static bool connectedToQLab = false;
-
         static Group OrientationSensorGroup;
         static string LightSensorCueId;
         static string FlexSensorCueId;
+
+        static TILSEffect CurrentEffect = TILSEffect.None;
+        static Task RunningPropTask;
+        static CancellationTokenSource stopRunningToken = new CancellationTokenSource();
         const bool IS_TESTING_DEVICE = false;
         static void Main(string[] args)
         {
-            Console.WriteLine("This is the simple prop theatre device interface");
+            Console.WriteLine("TILS, Theatrical Improv Lighting System");
             Console.WriteLine("Created by Brandon Goberdhansingh");
             Console.WriteLine("University of Calgary");
             Console.WriteLine("----------------------------------------------------");
             Console.WriteLine();
             Console.WriteLine();
+
             Device<Sensors> device = ChooseDeviceInterface();
             device.Connect();
-            SetupQLab().Wait();
-            SetupPropEffect().Wait();
+            Task<QLabOSCClient> setupQLabTask = SetupQLab();
+            setupQLabTask.Wait();
+            _qLabClient = setupQLabTask.Result;
+            SetupPropEffect(device).Wait();
             device.Recieved += Device_Recieved;
-            while (true) ;
+            while (true)
+            {
+                // Allows us to switch effects without restarting the program
+                if (Console.ReadKey().Key == ConsoleKey.Escape)
+                {
+                    ResetPropEffect(device).Wait();
+                    SetupPropEffect(device).Wait();
+                }             
+            }
             
         }
         private static async void Device_Recieved(Device<Sensors> device, Sensors sensors)
@@ -49,7 +64,15 @@ namespace BoxPropServer
             if (connectedToQLab || IS_TESTING_DEVICE)
             {
                 PrintSensorData(sensors);
-                await RunPropEffect(sensors);
+                RunningPropTask = RunPropEffect(sensors);
+                await RunningPropTask;
+                /*RunningPropTask = Task.Run(async () =>
+                {
+                    await RunPropEffect(sensors);
+                }, stopRunningToken.Token);
+
+                await RunningPropTask;
+                */
             }
         }
 
@@ -57,8 +80,8 @@ namespace BoxPropServer
         {
             Console.WriteLine("Please choose the interface your device will be using for comunication:");
             Console.WriteLine("Press 1 for Serial Port");
-            Console.WriteLine("Press 2 for Config and Connect WAN AP");
-            Console.WriteLine("Press 3 for Connect WAN AP");
+            Console.WriteLine("Press 2 for Config and Connect WAN");
+            Console.WriteLine("Press 3 for Connect WAN");
             Console.WriteLine("Press C to exit the program");
             while (true)
             {
@@ -67,8 +90,10 @@ namespace BoxPropServer
                     switch (Console.ReadKey().Key)
                     {
                         case ConsoleKey.D3:
-                            return ConnectToTCPDeviceAP();
+                        case ConsoleKey.NumPad3:
+                            return ConnectToTCPDevice();
                         case ConsoleKey.D2:
+                        case ConsoleKey.NumPad2:
                             return ConfigureTcpNetworkDeviceAP();
                         case ConsoleKey.D1:
                         case ConsoleKey.NumPad1:
@@ -83,12 +108,11 @@ namespace BoxPropServer
             }
         }
 
-        private static Device<Sensors> ConnectToTCPDeviceAP()
+        private static Device<Sensors> ConnectToTCPDevice()
         {
             Console.Clear();
             Console.WriteLine("Connect enter prop IP Address: ");
             string ip = Console.ReadLine();
-
             return new TCPNetworkDevice<Sensors>(ip, 53005, "ArduinoProp");
         }
 
@@ -149,8 +173,6 @@ namespace BoxPropServer
             Console.Clear();
             Console.WriteLine("Enter the COM port of the device");
             Device<Sensors> device;
-            //First upload code///
-
             while (true)
             {
                 string number = Console.ReadLine();
@@ -177,7 +199,7 @@ namespace BoxPropServer
             Console.WriteLine(sensors.ToString());
         }
 
-        private static async Task SetupQLab()
+        private static async Task<QLabOSCClient> SetupQLab()
         {
             if (IS_TESTING_DEVICE) return;
             Console.Clear();
@@ -198,9 +220,18 @@ namespace BoxPropServer
                     Console.WriteLine("Could not connect to QLab please enter another Ip Address");
                 }
             }
-            _qLabClient = client;
             // Now select a work space.
-            var workspaces = (await _qLabClient.GetWorkSpaces()).data;
+            List<WorkSpace> workspaces;
+            while((workspaces = (await client.GetWorkSpaces())?.data) == null)
+            {
+
+            }
+            if (workspaces.Count == 0)
+            {
+                Console.WriteLine("No workspaces on QLab to choose from, closing program in 5 seconds...");
+                await Task.Delay(5000);
+                Environment.Exit(-1);
+            }
             int count = 0;
             foreach (WorkSpace workspace in workspaces)
             {
@@ -228,14 +259,18 @@ namespace BoxPropServer
                 }
 
             }
-           
-            
             connectedToQLab = true;
+            return client;
         }
 
-        private static async Task SetupPropEffect()
+        private static async Task SetupPropEffect(Device<Sensors> device)
         {
-            if (IS_TESTING_DEVICE) return;
+            if (IS_TESTING_DEVICE)
+            {
+                device.Recieved += Device_Recieved;
+                return;
+            }
+            Console.Clear();
             Console.WriteLine("Choose the lighting effect you wish to run:");
             Console.WriteLine("[0] Light Sensor effect");
             Console.WriteLine("[1] Orientation Sensor effect");
@@ -247,33 +282,69 @@ namespace BoxPropServer
                 {
                     if (number == 0)
                     {
+                        Console.WriteLine("Setting up Light Sensor Effect...");
                         LightSensorCueId = await _qLabClient.SetupLightSensorEffect(_workspace.uniqueID);
+                        CurrentEffect = TILSEffect.Light;
                         break;
                     }
                     else if (number == 1)
                     {
+                        Console.WriteLine("Setting up Orientation Sensor Effect...");
                         OrientationSensorGroup = await _qLabClient.SetupOrientationSensorGridEffect(_workspace.uniqueID);
+                        CurrentEffect = TILSEffect.Orientation;
                         break;
                     }
                     else if (number == 2)
                     {
+                        Console.WriteLine("Setting up Flex Sensor Effect...");
                         FlexSensorCueId = await _qLabClient.SetupFlexSensorEffect(_workspace.uniqueID);
+                        CurrentEffect = TILSEffect.Flex;
                         break;
                     }
                 }
             }
+            device.Recieved += Device_Recieved;
+
+        }
+        private static async Task ResetPropEffect(Device<Sensors> device)
+        {
+            device.Recieved -= Device_Recieved;
+            RunningPropTask?.Dispose();
+            RunningPropTask = null;
+            Console.Clear();
+            if (IS_TESTING_DEVICE) return;
+           
+            //Now completly clear the workspace in QLab
+            if (CurrentEffect == TILSEffect.Light)
+            {
+                await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, LightSensorCueId);
+            }
+            else if (CurrentEffect == TILSEffect.Orientation)
+            {
+                await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, OrientationSensorGroup.Id);
+            }
+            else if (CurrentEffect == TILSEffect.Flex)
+            {
+                await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, FlexSensorCueId);
+            }
+            LightSensorCueId = null;
+            OrientationSensorGroup = null;
+            FlexSensorCueId = null;
+
+
         }
         private static async Task RunPropEffect(Sensors sensors)
         {
-            if (!string.IsNullOrEmpty(LightSensorCueId))
+            if (IS_TESTING_DEVICE) return;
+            if (CurrentEffect == TILSEffect.Light)
             {
                 await _qLabClient.RunLightSensorEffect(LightSensorCueId, _workspace.uniqueID, sensors.LightSensor);
             }
-            else if (OrientationSensorGroup != null)
+            else if (CurrentEffect == TILSEffect.Orientation)
             {
                 await _qLabClient.RunOrientationSensorGridEffect(_workspace.uniqueID, OrientationSensorGroup, sensors.OrientationSensor);
             }
-            else if (!string.IsNullOrEmpty(FlexSensorCueId))
+            else if (CurrentEffect == TILSEffect.Flex)
             {
                 await _qLabClient.RunFlexSensorEffect(_workspace.uniqueID, FlexSensorCueId, sensors.FlexSensor);
             }

@@ -14,9 +14,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{881E6404-971E-4E03-AC4B-1E4E549FF1D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SimpleBoxProp", "SimpleBoxProp", "{9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7}"
-	ProjectSection(SolutionItems) = preProject
-		Examples\BoxPropDevice\BoxPropDeviceTCP.ino = Examples\BoxPropDevice\BoxPropDeviceTCP.ino
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoxPropServer", "Examples\BoxPropServer\BoxPropServer.csproj", "{687ABA6D-EB5F-43DF-83FC-613AC80EDB41}"
 EndProject
