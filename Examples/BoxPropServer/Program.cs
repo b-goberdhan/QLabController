@@ -8,6 +8,7 @@ using QLabOSCInterface;
 using QLabOSCInterface.QLabClasses;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -31,9 +32,11 @@ namespace BoxPropServer
         static TILSEffect CurrentEffect = TILSEffect.None;
         static Task RunningPropTask;
         static CancellationTokenSource stopRunningToken = new CancellationTokenSource();
-        const bool IS_TESTING_DEVICE = false;
+        static bool IS_TESTING_DEVICE;
+
         static void Main(string[] args)
         {
+            IS_TESTING_DEVICE = bool.Parse(ConfigurationManager.AppSettings["DeviceOnly"]);
             Console.WriteLine("TILS, Theatrical Improv Lighting System");
             Console.WriteLine("Created by Brandon Goberdhansingh");
             Console.WriteLine("University of Calgary");
@@ -201,7 +204,7 @@ namespace BoxPropServer
 
         private static async Task<QLabOSCClient> SetupQLab()
         {
-            if (IS_TESTING_DEVICE) return;
+            if (IS_TESTING_DEVICE) return null;
             Console.Clear();
             Console.WriteLine("Connect to QLab");
             Console.WriteLine("Provide Ip Address");
