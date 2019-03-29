@@ -68,7 +68,6 @@ namespace BoxPropServer
             {
                 if (CurrentEffect != TILSEffect.None)
                 {
-                    PrintSensorData(sensors);
                     RunningPropTask = RunPropEffect(sensors);
                     await RunningPropTask;
                 }
@@ -293,6 +292,7 @@ namespace BoxPropServer
                         Console.WriteLine("Setting up Orientation Sensor Effect...");
                         OrientationSensorGroup = await _qLabClient.SetupOrientationSensorGridEffect(_workspace.uniqueID);
                         CurrentEffect = TILSEffect.Orientation;
+                        Console.WriteLine("Running Orientation Sensor Effect...");
                         break;
                     }
                     else if (number == 2)

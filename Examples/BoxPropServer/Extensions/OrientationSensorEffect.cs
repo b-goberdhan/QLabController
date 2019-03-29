@@ -41,12 +41,11 @@ namespace BoxPropServer.Extensions
             return group;
            
         }
+        private static int prevRow = -1;
+        private static int prevCol = -1;
         public static async Task RunOrientationSensorGridEffect(this QLabOSCClient client, string workspaceId, Group group, OrientationSensor sensor)
         {
-            await client.HardStopCue(workspaceId, group.Id, 0);
-            //First we need to recall what the layout of lights are we
-            // are just going to do a representations of the lights in a 
-            // 3 x 3 overhead configuration
+            
 
             string[,] lights = new string[3, 3]
             {
@@ -64,9 +63,20 @@ namespace BoxPropServer.Extensions
             decimal y = ((decimal)sensor.Y / 45) / 2;
             decimal z = ((decimal)sensor.Z / 60) / 2;// * 2;
             int col = (int)Math.Round(y) + 1;
-
             int row = (int)Math.Round(z) + 1;
+            if (prevRow == row && prevCol == col)
+            {
+                //same configuration as before, dont send anything!
+                return;
+            }
+            prevRow = row;
+            prevCol = col;
+            await client.HardStopCue(workspaceId, group.Id, 0);
+            //First we need to recall what the layout of lights are we
+            // are just going to do a representations of the lights in a 
+            // 3 x 3 overhead configuration
             int rowOffset = 0;
+            Task[] tasks = new Task[9];
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 3; j++)
@@ -75,11 +85,15 @@ namespace BoxPropServer.Extensions
                     float intensity = (distance / 3) * 100;
                     string lightCommand = lights[i, j] + ".intensity = " + intensity;
                     string cueID = group.Children[j + rowOffset];
-                    await client.SetCueLightCommand(workspaceId, cueID, lightCommand, 0);
-                    await client.StartCue(workspaceId, cueID, 0);
+                    tasks[j+rowOffset] = client.SetCueLightCommand(workspaceId, cueID, lightCommand, 0).ContinueWith(async (response) =>
+                    {
+                        await client.StartCue(workspaceId, cueID, 0);
+                    });
+                    
                 }
                 rowOffset += 3;
             }
+            Task.WaitAll(tasks);
         }
        
     }

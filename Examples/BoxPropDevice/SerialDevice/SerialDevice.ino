@@ -55,13 +55,14 @@ JsonObject& buildFlexSensorData(float flexResistence) {
 }
 
 void loop() {
-	delay(200);
+	delay(150);
 	char sensorDataOutput[4084];
 	sensors_event_t event;
 	bno.getEvent(&event);
 	
 	
 	long lightIntensity = analogRead(lightPin);
+	long smoothedFlexADC = 0;
 	long flexADC = analogRead(flexPin);
 	JsonObject& sensorsData = jb.createObject();
 	sensorsData["LightSensor"] = buildLightSensorData(lightIntensity);
