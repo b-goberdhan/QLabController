@@ -4,8 +4,8 @@ using BoxPropServer.DataModels.Sensors;
 using BoxPropServer.Enums;
 using BoxPropServer.Extensions;
 using DeviceInterface.Devices;
-using QLabOSCInterface;
-using QLabOSCInterface.QLabClasses;
+using QLabInterface;
+using QLabInterface.QLabClasses;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -66,16 +66,14 @@ namespace BoxPropServer
         {
             if (connectedToQLab || IS_TESTING_DEVICE)
             {
-                PrintSensorData(sensors);
-                RunningPropTask = RunPropEffect(sensors);
-                await RunningPropTask;
-                /*RunningPropTask = Task.Run(async () =>
+                if (CurrentEffect != TILSEffect.None)
                 {
-                    await RunPropEffect(sensors);
-                }, stopRunningToken.Token);
-
-                await RunningPropTask;
-                */
+                    PrintSensorData(sensors);
+                    RunningPropTask = RunPropEffect(sensors);
+                    await RunningPropTask;
+                }
+                
+               
             }
         }
 
@@ -312,12 +310,6 @@ namespace BoxPropServer
         private static async Task ResetPropEffect(Device<Sensors> device)
         {
             device.Recieved -= Device_Recieved;
-            RunningPropTask?.Dispose();
-            RunningPropTask = null;
-            Console.Clear();
-            if (IS_TESTING_DEVICE) return;
-           
-            //Now completly clear the workspace in QLab
             if (CurrentEffect == TILSEffect.Light)
             {
                 await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, LightSensorCueId);
@@ -330,6 +322,15 @@ namespace BoxPropServer
             {
                 await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, FlexSensorCueId);
             }
+            CurrentEffect = TILSEffect.None;
+            RunningPropTask.Wait();
+            RunningPropTask?.Dispose();
+            RunningPropTask = null;
+            Console.Clear();
+            if (IS_TESTING_DEVICE) return;
+           
+            //Now completly clear the workspace in QLab
+            
             LightSensorCueId = null;
             OrientationSensorGroup = null;
             FlexSensorCueId = null;

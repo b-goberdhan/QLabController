@@ -1,6 +1,6 @@
-﻿using QLabOSCInterface.Constants;
-using QLabOSCInterface.Enums;
-using QLabOSCInterface.QLabClasses;
+﻿using QLabInterface.Constants;
+using QLabInterface.Enums;
+using QLabInterface.QLabClasses;
 using Rug.Osc;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QLabOSCInterface
+namespace QLabInterface
 {
     public class QLabOSCClient : OSCClient
     {
@@ -82,17 +82,17 @@ namespace QLabOSCInterface
                 string.Format(WorkspaceConstants.DELETE_CUE_ID, cueGuid);
             return await base.Send<QLabResponse<dynamic>>(path);
         }
-        public async Task<QLabResponse<string>> CreateWorkSpaceCue(string workspaceGuid, CueType type)
+        public async Task<QLabResponse<string>> CreateWorkSpaceCue(string workspaceGuid, CueType type, int timeout = 500)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) + WorkspaceConstants.CREATE_CUE;
             object cueTypeName = Enum.GetName(typeof(CueType), type).ToLower();
-            return await base.Send<QLabResponse<string>>(path, timeout:500, cueTypeName);
+            return await base.Send<QLabResponse<string>>(path, timeout:timeout, cueTypeName);
         }
-        public async Task<QLabResponse<dynamic>> Move(string workspaceGuid, string cueId, int index, string parentId)
+        public async Task<QLabResponse<dynamic>> Move(string workspaceGuid, string cueId, int index, string parentId, int timeout = 500)
         {
             string path = string.Format(WorkspaceConstants.WORKSPACE, workspaceGuid) +
                 string.Format(WorkspaceConstants.MOVE, cueId);
-            return await base.Send<QLabResponse<dynamic>>(path, timeout: 500, index, parentId);
+            return await base.Send<QLabResponse<dynamic>>(path, timeout: timeout, index, parentId);
         }
         #endregion
         #region CUE METHODS

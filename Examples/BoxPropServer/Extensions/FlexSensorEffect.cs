@@ -1,5 +1,5 @@
 ﻿using BoxPropServer.DataModels.Sensors;
-using QLabOSCInterface;
+using QLabInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace BoxPropServer.Extensions
     {
         public static async Task<string> SetupFlexSensorEffect(this QLabOSCClient client, string workspaceId)
         {
-            string cueId = (await client.CreateWorkSpaceCue(workspaceId, QLabOSCInterface.Enums.CueType.Light)).data;
+            string cueId = (await client.CreateWorkSpaceCue(workspaceId, QLabInterface.Enums.CueType.Light)).data;
             await client.SetCueDuration(workspaceId, cueId, 0);
             return cueId;
         }

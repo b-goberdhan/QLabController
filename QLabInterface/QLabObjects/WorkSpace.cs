@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace QLabOSCInterface.QLabClasses
+namespace QLabInterface.QLabClasses
 {
     public class WorkSpace
     {

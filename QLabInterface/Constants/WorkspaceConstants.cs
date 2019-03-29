@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace QLabOSCInterface.Constants
+namespace QLabInterface.Constants
 {
     public class WorkspaceConstants
     {

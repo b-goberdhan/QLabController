@@ -1,5 +1,5 @@
 ﻿using BoxPropServer.DataModels.Sensors;
-using QLabOSCInterface;
+using QLabInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace BoxPropServer.Extensions
         private static List<float> sensorValues = new List<float>();
         public static async Task<string> SetupLightSensorEffect(this QLabOSCClient client, string workspaceId)
         {
-            var response = await client.CreateWorkSpaceCue(workspaceId, QLabOSCInterface.Enums.CueType.Light);
+            var response = await client.CreateWorkSpaceCue(workspaceId, QLabInterface.Enums.CueType.Light);
             var cueId = response.data;
             await client.SetCueDuration(workspaceId, cueId, 0);
             return cueId;

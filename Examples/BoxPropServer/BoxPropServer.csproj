@@ -148,12 +148,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\DeviceInterface\DeviceInterface.csproj">
-      <Project>{e84441ec-5fe4-4aba-9a6e-9f89e1296510}</Project>
+      <Project>{5c197b55-5326-46a9-af46-b33e19d448b3}</Project>
       <Name>DeviceInterface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QLabOSCInterface\QLabOSCInterface.csproj">
-      <Project>{707208f6-015e-4037-a661-5cd481161678}</Project>
-      <Name>QLabOSCInterface</Name>
+    <ProjectReference Include="..\..\QLabInterface\QLabInterface.csproj">
+      <Project>{a739651c-c099-4657-98e2-1183ef050041}</Project>
+      <Name>QLabInterface</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

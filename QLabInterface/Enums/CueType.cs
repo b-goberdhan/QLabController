@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace QLabOSCInterface.Enums
+namespace QLabInterface.Enums
 {
     public enum CueType
     {

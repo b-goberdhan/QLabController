@@ -1,7 +1,7 @@
 ﻿using BoxPropServer.DataModels.QLab;
 using BoxPropServer.DataModels.Sensors;
-using QLabOSCInterface;
-using QLabOSCInterface.Enums;
+using QLabInterface;
+using QLabInterface.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,8 +23,12 @@ namespace BoxPropServer.Extensions
             int i = 0;
             while (i < 9)
             {
-                string cueId = (await client.CreateWorkSpaceCue(workspaceId, CueType.Light)).data;
-                var moveResponse = await client.Move(workspaceId, cueId, i, cueGroupId);
+                string cueId = (await client.CreateWorkSpaceCue(workspaceId, CueType.Light, 1000))?.data;
+                if (cueId == null)
+                {
+                    int x = 0;
+                }
+                var moveResponse = await client.Move(workspaceId, cueId, i, cueGroupId, 500);
                 await client.SetCueDuration(workspaceId, cueId, 0, 100);
                 if (moveResponse.status != "ok")
                 {
