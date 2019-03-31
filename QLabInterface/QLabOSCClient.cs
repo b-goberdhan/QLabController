@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace QLabInterface
 {
-    public class QLabOSCClient : OSCClient
+    public class QLabClient : OSCClient
     {
         /// <summary>
         /// Default recieve and send osc ports for QLAB
@@ -20,7 +20,7 @@ namespace QLabInterface
 
 
 
-        public QLabOSCClient(string ipAddress) : base(ipAddress, QLAB_SEND_PORT, QLAB_RECV_PORT)
+        public QLabClient(string ipAddress) : base(ipAddress, QLAB_SEND_PORT, QLAB_RECV_PORT)
         {
         }
 

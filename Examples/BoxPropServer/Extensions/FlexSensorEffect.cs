@@ -10,13 +10,13 @@ namespace BoxPropServer.Extensions
 {
     public static partial class QLabExtension
     {
-        public static async Task<string> SetupFlexSensorEffect(this QLabOSCClient client, string workspaceId)
+        public static async Task<string> SetupFlexSensorEffect(this QLabClient client, string workspaceId)
         {
             string cueId = (await client.CreateWorkSpaceCue(workspaceId, QLabInterface.Enums.CueType.Light)).data;
             await client.SetCueDuration(workspaceId, cueId, 0);
             return cueId;
         }
-        public static async Task RunFlexSensorEffect(this QLabOSCClient client, string workspaceId, string cueId, FlexSensor sensor)
+        public static async Task RunFlexSensorEffect(this QLabClient client, string workspaceId, string cueId, FlexSensor sensor)
         {
             await client.HardStopCue(workspaceId, cueId, 50);
             float sensorResistence = (sensor.FlexResistence / 45) * 100; //45 is the max value for this setup

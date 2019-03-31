@@ -61,9 +61,8 @@ void loop() {
 	bno.getEvent(&event);
 	
 	
-	long lightIntensity = analogRead(lightPin);
-	long smoothedFlexADC = 0;
-	long flexADC = analogRead(flexPin);
+	long lightIntensity = smoothAnalogData(lightPin);
+	long flexADC = smoothAnalogData(flexPin);
 	JsonObject& sensorsData = jb.createObject();
 	sensorsData["LightSensor"] = buildLightSensorData(lightIntensity);
 	sensorsData["OrientationSensor"] = buildOrientationSensorData(event.orientation.x, event.orientation.y, event.orientation.z);
@@ -75,7 +74,13 @@ void loop() {
 	Serial.println(sensorDataOutput);
 }
 
-
+long smoothAnalogData(int pin) {
+	long value = 0;
+	for (int i = 0; i < 100; i++) {
+		value += analogRead(pin);
+	}
+	return round(value / 100);
+}
 
 long getPingRangeCm() {
 	pinMode(pingPin, OUTPUT);

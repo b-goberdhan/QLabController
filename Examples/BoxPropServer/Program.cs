@@ -21,7 +21,7 @@ namespace BoxPropServer
 {
     class Program
     {
-        static QLabOSCClient _qLabClient;
+        static QLabClient _qLabClient;
         static WorkSpace _workspace;
         
         static bool connectedToQLab = false;
@@ -33,20 +33,25 @@ namespace BoxPropServer
         static Task RunningPropTask;
         static CancellationTokenSource stopRunningToken = new CancellationTokenSource();
         static bool IS_TESTING_DEVICE;
+        static bool IS_SHOWING_SENSOR_DATA;
 
         static void Main(string[] args)
         {
             IS_TESTING_DEVICE = bool.Parse(ConfigurationManager.AppSettings["DeviceOnly"]);
+            IS_SHOWING_SENSOR_DATA = bool.Parse(ConfigurationManager.AppSettings["ShowSensorData"]);
             Console.WriteLine("TILS, Theatrical Improv Lighting System");
             Console.WriteLine("Created by Brandon Goberdhansingh");
             Console.WriteLine("University of Calgary");
             Console.WriteLine("----------------------------------------------------");
             Console.WriteLine();
+
+            if (IS_TESTING_DEVICE) Console.WriteLine("Testing device enabled.");
+            if (IS_SHOWING_SENSOR_DATA) Console.WriteLine("Showing sensor data enabled.");
             Console.WriteLine();
 
             Device<Sensors> device = ChooseDeviceInterface();
             device.Connect();
-            Task<QLabOSCClient> setupQLabTask = SetupQLab();
+            Task<QLabClient> setupQLabTask = SetupQLab();
             setupQLabTask.Wait();
             _qLabClient = setupQLabTask.Result;
             SetupPropEffect(device).Wait();
@@ -66,6 +71,11 @@ namespace BoxPropServer
         {
             if (connectedToQLab || IS_TESTING_DEVICE)
             {
+                if (IS_SHOWING_SENSOR_DATA)
+                {
+                    Console.Clear();
+                    Console.WriteLine(sensors.ToString());
+                }
                 if (CurrentEffect != TILSEffect.None)
                 {
                     RunningPropTask = RunPropEffect(sensors);
@@ -193,25 +203,20 @@ namespace BoxPropServer
                 }
             }
         }
-        private static void PrintSensorData(Sensors sensors)
-        {
-            Console.Clear();
-            Console.WriteLine(sensors.ToString());
-        }
 
-        private static async Task<QLabOSCClient> SetupQLab()
+        private static async Task<QLabClient> SetupQLab()
         {
             if (IS_TESTING_DEVICE) return null;
             Console.Clear();
             Console.WriteLine("Connect to QLab");
             Console.WriteLine("Provide Ip Address");
-            QLabOSCClient client;
+            QLabClient client;
             while (true)
             {
                 string ipAddress = Console.ReadLine();
                 try
                 {
-                    client = new QLabOSCClient(ipAddress);
+                    client = new QLabClient(ipAddress);
                     client.Connect();
                     break;
                 }
@@ -310,32 +315,30 @@ namespace BoxPropServer
         private static async Task ResetPropEffect(Device<Sensors> device)
         {
             device.Recieved -= Device_Recieved;
-            if (CurrentEffect == TILSEffect.Light)
+            if (!IS_TESTING_DEVICE)
             {
-                await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, LightSensorCueId);
+                if (CurrentEffect == TILSEffect.Light)
+                {
+                    await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, LightSensorCueId);
+                }
+                else if (CurrentEffect == TILSEffect.Orientation)
+                {
+                    await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, OrientationSensorGroup.Id);
+                }
+                else if (CurrentEffect == TILSEffect.Flex)
+                {
+                    await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, FlexSensorCueId);
+                }
             }
-            else if (CurrentEffect == TILSEffect.Orientation)
-            {
-                await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, OrientationSensorGroup.Id);
-            }
-            else if (CurrentEffect == TILSEffect.Flex)
-            {
-                await _qLabClient.DeleteWorkSpaceCue(_workspace.uniqueID, FlexSensorCueId);
-            }
+            
             CurrentEffect = TILSEffect.None;
-            RunningPropTask.Wait();
+            RunningPropTask?.Wait();
             RunningPropTask?.Dispose();
             RunningPropTask = null;
-            Console.Clear();
-            if (IS_TESTING_DEVICE) return;
-           
-            //Now completly clear the workspace in QLab
-            
             LightSensorCueId = null;
             OrientationSensorGroup = null;
             FlexSensorCueId = null;
-
-
+            Console.Clear();
         }
         private static async Task RunPropEffect(Sensors sensors)
         {

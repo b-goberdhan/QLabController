@@ -10,31 +10,27 @@ namespace BoxPropServer.Extensions
 {
     public static partial class QLabExtension
     {
-        private static List<float> sensorValues = new List<float>();
-        public static async Task<string> SetupLightSensorEffect(this QLabOSCClient client, string workspaceId)
+        public static async Task<string> SetupLightSensorEffect(this QLabClient client, string workspaceId)
         {
             var response = await client.CreateWorkSpaceCue(workspaceId, QLabInterface.Enums.CueType.Light);
             var cueId = response.data;
             await client.SetCueDuration(workspaceId, cueId, 0);
             return cueId;
         }
-        public static async Task RunLightSensorEffect(this QLabOSCClient client, string cueId, string workspaceId, LightSensor sensor)
+        private static float prevLightIntensity = -1;
+        public static async Task RunLightSensorEffect(this QLabClient client, string cueId, string workspaceId, LightSensor sensor)
         {
-            if (sensorValues.Count < 5)
+
+            if (prevLightIntensity == sensor.Intensity)
             {
-                sensorValues.Add(sensor.Intensity);
                 return;
             }
-            
+            prevLightIntensity = sensor.Intensity;
             await client.HardStopCue(workspaceId, cueId, 50);
             // the max value from the light sensor is ~~1000
             // we want the value to be in relation to the max value of light in qlab which is 255
-            float lightIntensity = 0;
-            foreach (var intensity in sensorValues)
-            {
-                lightIntensity += (((float)sensor.Intensity / 50) * 100f);
-            }
-            lightIntensity /= sensorValues.Count;
+            float lightIntensity = (((float)sensor.Intensity / 50) * 100f);
+            
             
             if (lightIntensity > 50)
             {
@@ -50,7 +46,6 @@ namespace BoxPropServer.Extensions
           
             await client.SetCueLightCommand(workspaceId, cueId, lightingCommand, 0);
             await client.StartCue(workspaceId, cueId, 0);
-            sensorValues.Clear();
         }
     }
 }

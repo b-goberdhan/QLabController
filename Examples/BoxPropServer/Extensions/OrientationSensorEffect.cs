@@ -12,7 +12,7 @@ namespace BoxPropServer.Extensions
 {
     public static partial class QLabExtension
     {
-        public static async Task<Group> SetupOrientationSensorGridEffect(this QLabOSCClient client, string workspaceId)
+        public static async Task<Group> SetupOrientationSensorGridEffect(this QLabClient client, string workspaceId)
         {
             var response = await client.CreateWorkSpaceCue(workspaceId, CueType.Group);
             
@@ -43,7 +43,7 @@ namespace BoxPropServer.Extensions
         }
         private static int prevRow = -1;
         private static int prevCol = -1;
-        public static async Task RunOrientationSensorGridEffect(this QLabOSCClient client, string workspaceId, Group group, OrientationSensor sensor)
+        public static async Task RunOrientationSensorGridEffect(this QLabClient client, string workspaceId, Group group, OrientationSensor sensor)
         {
             
 
