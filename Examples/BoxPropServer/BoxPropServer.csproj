@@ -132,9 +132,10 @@
     <Compile Include="DataModels\Sensors\FlexSensor.cs" />
     <Compile Include="DataModels\Sensors\GravitySensor.cs" />
     <Compile Include="DataModels\Sensors\Sensor.cs" />
-    <Compile Include="DataModels\Config.cs" />
+    <Compile Include="DataModels\Config\Config.cs" />
     <Compile Include="DataModels\Sensors\LightSensor.cs" />
     <Compile Include="DataModels\Sensors\OrientationSensor.cs" />
+    <Compile Include="DataModels\Config\WifiCredentials.cs" />
     <Compile Include="Enums\TILSEffect.cs" />
     <Compile Include="Extensions\FlexSensorEffect.cs" />
     <Compile Include="Extensions\LightSensorEffect.cs" />

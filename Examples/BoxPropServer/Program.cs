@@ -1,8 +1,10 @@
 ﻿using BoxPropServer.DataModels;
+using BoxPropServer.DataModels.Config;
 using BoxPropServer.DataModels.QLab;
 using BoxPropServer.DataModels.Sensors;
 using BoxPropServer.Enums;
 using BoxPropServer.Extensions;
+using DeviceInterface.Delegates;
 using DeviceInterface.Devices;
 using QLabInterface;
 using QLabInterface.QLabClasses;
@@ -126,9 +128,6 @@ namespace BoxPropServer
             return new TCPNetworkDevice<Sensors>(ip, 53005, "ArduinoProp");
         }
 
-        private static bool isDoneConfig = false;
-        private static bool isAPSetup = false;
-        private static string deviceIpAddress;
         private static Device<Sensors> ConfigureTcpNetworkDeviceAP()
         {
             //first connect over serial to the device
@@ -137,45 +136,41 @@ namespace BoxPropServer
             Console.WriteLine("Enter the WiFi network SSID: ");
             string ssid = Console.ReadLine();
             Console.WriteLine("Enter the Wifi network Password: ");
-            string pwd = Console.ReadLine();
+            string pass = Console.ReadLine();
 
             var serialConfig = new SerialPortDevice<Config>(4, "ArduinoConfig");
-            serialConfig.Recieved += SerialConfigDevice_Recieved;
+            string ipAddress = "";
+            bool isDoneConfig = false;
+            MessageRecievedHandler<Config> messageHandler = (device, message) =>
+            {
+                if (message.Status == "Done")
+                {
+                    ipAddress = message.DeviceIp;
+                    isDoneConfig = true;
+                }
+            };
+
+            serialConfig.Recieved += messageHandler;
             serialConfig.Connect();
-            serialConfig.Send(ssid);
-            serialConfig.Send(pwd);
-            while(!isDoneConfig)
+            serialConfig.Send(new Config()
+            {
+                WifiCredentials = new WifiCredentials()
+                {
+                    SSID = ssid,
+                    Password = pass
+                }
+            });
+            while (!isDoneConfig)
             {
                 //just keep running...
+                
             }
-            Console.WriteLine("Recieved config data from prop, press enter to continue");
-            Console.ReadLine();
-            serialConfig.Recieved -= SerialConfigDevice_Recieved;
+            serialConfig.Recieved -= messageHandler;
             serialConfig.Disconnect();
             serialConfig.Dispose();
-
-            var tcpDevice = new TCPNetworkDevice<Sensors>(deviceIpAddress, 53005, "ArduinoProp");
+            ConfigurationManager.AppSettings["DeviceIp"] = ipAddress;
             Console.WriteLine("Now recieving data, you may now disconnect the device");
-            return tcpDevice;
-        }
-        private static void SerialConfigDevice_Recieved(Device<Config> device, Config response)
-        {            
-            if (response.Data == 0)
-            {
-                Console.WriteLine("AP Setup Running...");
-                isAPSetup = true;
-            }
-            else if (isAPSetup && !isDoneConfig)
-            {
-                byte[] bytes = BitConverter.GetBytes(response.Data);
-                deviceIpAddress = new IPAddress(bytes).ToString();
-                Console.WriteLine("Recieved IP Address: " + deviceIpAddress);
-                isDoneConfig = true;               
-            }
-            else if (response.Data == -3)
-            {
-                Console.WriteLine("ERROR");
-            }
+            return new TCPNetworkDevice<Sensors>(ipAddress, 53005, "ArduinoProp"); ;
         }
 
         private static Device<Sensors> ConfigureSerialDevice()
@@ -203,7 +198,7 @@ namespace BoxPropServer
                 }
             }
         }
-
+        
         private static async Task<QLabClient> SetupQLab()
         {
             if (IS_TESTING_DEVICE) return null;

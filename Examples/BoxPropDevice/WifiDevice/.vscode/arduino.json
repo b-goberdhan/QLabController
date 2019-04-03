@@ -1,0 +1,6 @@
+{
+    "board": "arduino:samd:mkr1000",
+    "programmer": "AVRISP mkII",
+    "port": "COM4",
+    "sketch": "WifiDevice.ino"
+}

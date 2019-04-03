@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Users\\Deimos\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\**",
+                "C:\\Users\\Deimos\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\samd\\1.6.20\\**"
+            ],
+            "forcedInclude": [
+                "C:\\Users\\Deimos\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\samd\\1.6.20\\cores\\arduino\\Arduino.h"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "compilerPath": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

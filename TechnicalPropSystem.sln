@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QLabInterface", "QLabInterf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceInterface", "DeviceInterface\DeviceInterface.csproj", "{5C197B55-5326-46A9-AF46-B33E19D448B3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SerialDevice", "Examples\BoxPropDevice\SerialDevice\SerialDevice.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WifiDevice", "Examples\BoxPropDevice\WifiDevice\WifiDevice.vcxproj", "{E2E2A8E7-65B4-433A-8D7F-25AA9E931BE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,18 @@ Global
 		{5C197B55-5326-46A9-AF46-B33E19D448B3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5C197B55-5326-46A9-AF46-B33E19D448B3}.Release|x86.ActiveCfg = Release|Any CPU
 		{5C197B55-5326-46A9-AF46-B33E19D448B3}.Release|x86.Build.0 = Release|Any CPU
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|Any CPU.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{E2E2A8E7-65B4-433A-8D7F-25AA9E931BE4}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{E2E2A8E7-65B4-433A-8D7F-25AA9E931BE4}.Debug|x86.ActiveCfg = Debug|Win32
+		{E2E2A8E7-65B4-433A-8D7F-25AA9E931BE4}.Debug|x86.Build.0 = Debug|Win32
+		{E2E2A8E7-65B4-433A-8D7F-25AA9E931BE4}.Release|Any CPU.ActiveCfg = Release|Win32
+		{E2E2A8E7-65B4-433A-8D7F-25AA9E931BE4}.Release|x86.ActiveCfg = Release|Win32
+		{E2E2A8E7-65B4-433A-8D7F-25AA9E931BE4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +68,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7} = {881E6404-971E-4E03-AC4B-1E4E549FF1D3}
 		{687ABA6D-EB5F-43DF-83FC-613AC80EDB41} = {9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7}
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88} = {9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7}
+		{E2E2A8E7-65B4-433A-8D7F-25AA9E931BE4} = {9EDC1470-7CC1-4DBF-B054-6FDC5AB644D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EFFF883C-8AC4-49C1-8080-97516D7F7EB0}

@@ -61,11 +61,12 @@ namespace DeviceInterface.Devices
             }
             
         }
-        public void Send(string text)
+        public void Send(TData data)
         {
             if (IsConnected)
             {
-                _serialPort.WriteLine(text);
+                var json = ConvertToJson(data);
+                _serialPort.WriteLine(json);
             }
         }
         public override void Dispose()

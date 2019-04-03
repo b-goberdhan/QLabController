@@ -43,7 +43,10 @@ namespace DeviceInterface.Devices
                 return default(TData);
             }
         }
-
+        protected string ConvertToJson(TData data)
+        {
+            return JsonConvert.SerializeObject(data);
+        }
         public virtual void Dispose()
         {
             IsConnected = false;
